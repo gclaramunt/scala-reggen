@@ -125,3 +125,47 @@ instance Functor f => Functor (S c f) where
 object SFunctor extends Functor[S]{
   def fmap[A, B](f: A => B)(sa: S[A]): S[B]=S(sa.s,f(sa.unS))
 }
+
+/*
+-----------------------------------------------------------------------------
+-- Fixed-point type.
+-----------------------------------------------------------------------------
+*/
+/*
+-- | The well-known fixed-point type.
+newtype Fix f = In { out :: f (Fix f) }
+*/
+case class Fix[F[_]](out: F[Fix[F]]) //see http://debasishg.blogspot.com/2011/07/datatype-generic-programming-in-scala.html
+
+
+/*
+-----------------------------------------------------------------------------
+-- Type class capturing the structural representation of a type and the
+-- corresponding embedding-projection pairs.
+-----------------------------------------------------------------------------
+*/
+
+/*
+-- | The type family @PF@ represents the pattern functor of a datatype.
+-- 
+-- To be able to use the generic functions, the user is required to provide
+-- an instance of this type family.
+type family PF a :: * -> *
+*/
+trait PF[A]{}
+
+/*
+-- | The type class @Regular@ captures the structural representation of a 
+-- type and the corresponding embedding-projection pairs.
+--
+-- To be able to use the generic functions, the user is required to provide
+-- an instance of this type class.
+class Regular a where
+  from      :: a -> PF a a
+  to        :: PF a a -> a
+*/
+trait Regular[A] {
+  def from(a:A):PF[A]
+  def to(pf:PF[A]):A
+}
+
