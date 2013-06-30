@@ -92,20 +92,19 @@ instance (Functor f, Functor g) => Functor (f :+: g) where
   fmap h (L x) = L (fmap h x)
   fmap h (R y) = R (fmap h y)
 */
-trait CoproductFunctor[A,B] extends Bifunctor[:+:]{
+trait CoproductFunctor extends Bifunctor[:+:]{
   def bimap[A, B, C, D](f: A => C, g: B => D)(fab: A:+:B): C:+:D = fab match {
     case L(a)=>L(f(a))
     case R(a)=>R(g(a))
   }
 }
 
-
 /*
 instance (Functor f, Functor g) => Functor (f :*: g) where
   fmap f (x :*: y) = fmap f x :*: fmap f y
 */
-trait ProductFunctor[A,B] extends Bifunctor[:*:]{
-  def bimap[A, B, C, D](f: A => C, g: B => D)(fab: A:*:B): C:*:D =fab match { 
+trait ProductFunctor extends Bifunctor[:*:]{
+  def bimap[A, B, C, D](f: A => C, g: B => D)(fab: A:*:B): C:*:D =fab match {
     case a:*:b => :*:(f(a),g(b)) 
   } 
 }
@@ -152,7 +151,7 @@ case class Fix[F[_]](out: F[Fix[F]]) //see http://debasishg.blogspot.com/2011/07
 -- an instance of this type family.
 type family PF a :: * -> *
 */
-trait PF[A]{}
+trait PF[A] extends Functor[PF]{}
 
 /*
 -- | The type class @Regular@ captures the structural representation of a 
