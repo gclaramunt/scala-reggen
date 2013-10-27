@@ -1,4 +1,4 @@
-import scala.language.higherKinds
+/*import scala.language.higherKinds
 
 /*
 -----------------------------------------------------------------------------
@@ -8,12 +8,12 @@ import scala.language.higherKinds
 
 //TODO: use scalaz one
 trait Functor[F[_]] { 
-  def fmap[A, B](f: A => B)(fa: F[A]): F[B]
+  def fmap[A, B](f: A => B):F[A]=>F[B]
 }
 
 //TODO: use scalaz one
 trait Bifunctor[F[_, _]]  {
-  def bimap[A, B, C, D](f: A => C, g: B => D)(fab: F[A, B]): F[C, D]
+  def bimap[A, B, C, D](f: A => C, g: B => D): F[A, B]=>F[C, D]
 }
 
 /*
@@ -69,7 +69,7 @@ case class S[T](s:String,unS:T)
 instance Functor I where fmap f (I r) = I (f r)
 */
 object IFunctor extends Functor[I]{
-  def fmap[A, B](f: A => B)(ia: I[A]): I[B]=I(f(ia.unI))
+  override def fmap[A, B](f: A => B)(ia: I[A]): I[B]=I(f(ia.unI))
 }
 /*
 instance Functor (K a) where
@@ -87,11 +87,11 @@ object UFunctor extends Functor[U]{
   def fmap[A, B](f: A => B)(u: U[A]): U[B]=U[B]()
 }
 
-/*
+
 instance (Functor f, Functor g) => Functor (f :+: g) where
   fmap h (L x) = L (fmap h x)
   fmap h (R y) = R (fmap h y)
-*/
+
 trait CoproductFunctor extends Bifunctor[:+:]{
   def bimap[A, B, C, D](f: A => C, g: B => D)(fab: A:+:B): C:+:D = fab match {
     case L(a)=>L(f(a))
@@ -163,8 +163,9 @@ class Regular a where
   from      :: a -> PF a a
   to        :: PF a a -> a
 */
-trait Regular[A] {
+trait Regular1[A] {
   def from(a:A):PF[A]
   def to(pf:PF[A]):A
 }
 
+*/
