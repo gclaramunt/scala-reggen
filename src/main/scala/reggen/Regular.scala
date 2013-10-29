@@ -27,39 +27,44 @@ object Regular {
     def from2[A]:T[A]=>PF2[A,T] 
     def to2[A]:PF2[A,T]=>T[A]
   }
-/*
-  -- | Bifunctores regulares. Al igual que para los (mono)functores regulares
-  -- | definiremos los bifunctores regulares en Haskell y sus correspondientes
-  -- | instancias de la clase Bifunctor.
+  /*
+    -- | Bifunctores regulares. Al igual que para los (mono)functores regulares
+    -- | definiremos los bifunctores regulares en Haskell y sus correspondientes
+    -- | instancias de la clase Bifunctor.
 
-  class Bifunctor f where
-     bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
+    class Bifunctor f where
+       bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
+  */
+/*  trait Bifunctor[F[_, _]] {
+    def bimap[A,R,B,S](f: A => B, g: R => S): F[A, R]=>F[B, S]
+  }
 */
   trait Bifunctor[F[_, _]] {
-    def bimap[A, B, R, S](f: A => B, g: R => S): F[A, R]=>F[B, S]
+    def bimap[A, R, B, S](fa: F[A, R], f: A => B, g: R => S): F[B, S]
   }
 
-/*
-    infixr 6 :++:
-    infixr 7 :**:
 
-  no way :(
-*/
+  /*
+      infixr 6 :++:
+      infixr 7 :**:
 
-/*
-  -- | Bifunctor constante
+    no way :(
+  */
 
-  data K2 a b r = K2 a
-*/
+  /*
+    -- | Bifunctor constante
+
+    data K2 a b r = K2 a
+  */
   case class K2[A,B,R](a:A)
 
-/*
-  instance Bifunctor (K2 a)  where
-     bimap f g (K2 x) = (K2 x)
-*/
-implicit def Bik2[A] =new Bifunctor[ ({type λ[B,R]=K2[A,B,R]})#λ ]{
-  def bimap[A1, B, R, S](f: A1 => B,g: R => S)= (k2:K2[A,A1,R]) => K2[A,B,S](k2.a) 
-}
+  /*
+    instance Bifunctor (K2 a)  where
+       bimap f g (K2 x) = (K2 x)
+  */
+  implicit def Bik2[A] =new Bifunctor[ ({type λ[B,R]=K2[A,B,R]})#λ ]{
+    def bimap[A1, R, B, S](k2:K2[A,A1,R], f: A1 => B,g: R => S)= K2[A,B,S](k2.a) 
+  }
 
 /*
   -- | Bifunctor constante 1
@@ -72,7 +77,7 @@ case class U2[A,R]()
      bimap f g U2 = U2
 */
 implicit def BiU2 =new Bifunctor[U2]{
-  def bimap[A, B, R, S](f: A => B,g: R => S)= (u2:U2[A,R]) => U2[B,S]()
+  def bimap[A, R, B, S](u2:U2[A,R], f: A => B,g: R => S)= U2[B,S]()
 }
 
 /*
@@ -86,7 +91,7 @@ case class Par[A,R](a:A)
      bimap f g (Par x) = Par (f x)
 */
 implicit def BiPar= new Bifunctor[Par]{
-  def bimap[A, B, R, S](f: A => B,g: R => S)= (par:Par[A,R]) => Par[B,S](f(par.a))
+  def bimap[A, R, B, S]( par:Par[A,R], f: A => B,g: R => S)=  Par[B,S](f(par.a))
 }
 
 /*
@@ -100,7 +105,7 @@ case class Rec[A,R](r:R)
      bimap f g (Rec r) = Rec (g r)
 */
 implicit def BiRec = new  Bifunctor[Rec] {
-  def bimap[A, B, R, S](f: A => B,g: R => S)= (rec:Rec[A,R]) => Rec[B,S](g(rec.r))
+  def bimap[A, R, B, S](rec:Rec[A,R], f: A => B,g: R => S)=  Rec[B,S](g(rec.r))
 }
 
 /*
@@ -110,47 +115,66 @@ implicit def BiRec = new  Bifunctor[Rec] {
 */
 
 //ugh! must be a better way
-trait :++:[+F[_,_],+G[_,_]]
-case class LL[A,R,F[_,_],G[_,_]](f:F[A,R])  extends :++:[F,G]
-case class RR[A,R,F[_,_],G[_,_]](g:G[A,R])  extends :++:[F,G]
+trait :++:[A,R,F[A,R],G[A,R]]
+case class LL[A,R,F[_,_],G[_,_]](f:F[A,R]) extends :++:[A,R,F,G]
+case class RR[A,R,F[_,_],G[_,_]](g:G[A,R]) extends :++:[A,R,F,G]
 
+  /*
+    instance (Bifunctor t, Bifunctor u) => Bifunctor (t :++: u) where
+       bimap f g (LL x) = LL (bimap f g x)
+       bimap f g (RR y) = RR (bimap f g y)
+  */
+
+
+
+implicit def BiPlus[F[_,_],G[_,_]](implicit bf:Bifunctor[F],bg:Bifunctor[G])=new Bifunctor[({type λ[A,R]= :++:[A,R,F,G]})#λ] {
+  def bimap[A, R, B, S](fa: :++:[A,R,F,G], f: A => B, g: R => S): :++:[B,S,F,G]=fa match {
+    case LL(lf) =>LL(bf.bimap(lf,f,g))
+    case RR(rg) =>RR(bg.bimap(rg,f,g))
+  }
+}
 /*
-  instance (Bifunctor t, Bifunctor u) => Bifunctor (t :++: u) where
-     bimap f g (LL x) = LL (bimap f g x)
-     bimap f g (RR y) = RR (bimap f g y)
+    def bimapLL[A,R,B,S](f: A => B,g: R => S)=(ll:LL[A,R,F,G])=>LL[B,S,F,G](bf.bimap(f,g)(ll.f))
+    def bimapRR[A,R,B,S](f: A => B,g: R => S)=(rr:RR[A,R,F,G])=>RR[B,S,F,G](bg.bimap(f,g)(rr.g))
 */
 
-import scala.reflect.Manifest
+    // val bf=implicitly[Bifunctor[F]]
+    // val bg=implicitly[Bifunctor[G]]
+/*
+    def bimapLL[A,R,B,S](f: A => B,g: R => S)=(lf:F[A,R])=>LL[B,S,F,G](bf.bimap(lf,f,g))
+    def bimapRR[A,R,B,S](f: A => B,g: R => S)=(rg:G[A,R])=>RR[B,S,F,G](bg.bimap(rg,f,g))
+*/
+     // [A, R, B, S](fa: Regular.:++:[A,R], f: A => B, g: R => S)Regular.:++:[B,S]
+    /*def bimap[A,R,B,S](pp:F:++:G,f: A=> B, g: R => S): F:++:G =pp match {
+      case LL(lf) => bimapLL(f,g)(lf.asInstanceOf[F[A,R]])//bf.bimap(f,g)(lf.asInstanceOf[F[A,R]])//UNTIL I FIX IT
+      case RR(rg) => bimapRR(f,g)(rg.asInstanceOf[G[A,R]])//bg.bimap(f,g)(rg.asInstanceOf[G[A,R]])//UNTIL I FIX IT
+    }*/
+    // def bimap[FA[_,_], FR[_,_], FB[_,_], FS[_,_]
+    // ](pp: FA:++:FR, f: FA[_,_] => FB[_,_], g: FR[_,_] => FS[_,_]): FB:++:FS=
+    //   pp match {
+    //     case LL(lf) => LL(bf.bimap(lf,f,g)) //bimapLL(f,g)(lf.asInstanceOf[FA[_,_]])//bf.bimap(f,g)(lf.asInstanceOf[F[A,R]])//UNTIL I FIX IT
+    //     case RR(rg) => RR(bg.bimap(rg,f,g)) //bimapRR(f,g)(rg.asInstanceOf[FR[_,_]])//bg.bimap(f,g)(rg.asInstanceOf[G[A,R]])//UNTIL I FIX IT
+    //   } 
+  // }
+/*
+  trait Bifunctor[PP[_, _]] {
+    def bimap[FA[_,_], FR[_,_], FB[_,_], FS[_,_]](pp: PP[FA[_,_], FR[_,_]], f: FA[_,_] => FB[_,_], g: FR[_,_] => FS[_,_]): PP[FB[_,_], FS[_,_]]
+  }*/
 
-implicit def BiPlus[F[_,_]:Bifunctor,G[_,_]:Bifunctor]=new Bifunctor[:++:] {
-  
-  def bimapLL[A, B, R, S](f: A => B,g: R => S)( bf:Bifunctor[F])=(ll:LL[A,R,F,G])=>LL[B,S,F,G](bf.bimap(f,g)(ll.f))
-  def bimapRR[A, B, R, S](f: A => B,g: R => S)(bg:Bifunctor[G])=(rr:RR[A,R,F,G])=>RR[B,S,F,G](bg.bimap(f,g)(rr.g))
-
-  def bimap[A[_,_], B[_,_], R[_,_], S[_,_]](f: A[_,_] => B[_,_], g: R[_,_] => S[_,_]): F:++:G => F:++:G ={
-      case LL(_) => bimapLL(f,g)
-      case RR(_) => bimapRR(f,g)
+/*
+  implicit def EitherBifunctor = new Bifunctor[Either] {
+               //[A, B, R, S](f: A => B, g: R => S):Either[A,R] => Either[B,S] 
+      def bimap[A, B, R, S](f: A => B, g: R => S):Either[A,R]=>Either[B,S] =  {
+          case Left(a) => Left(f(a))
+          case Right(b) => Right(g(b))
+        }
   }
-}
 
-implicit def EitherBifunctor = new Bifunctor[Either] {
-             //[A, B, R, S](f: A => B, g: R => S):Either[A,R] => Either[B,S] 
-    def bimap[A, B, R, S](f: A => B, g: R => S):Either[A,R]=>Either[B,S] =  {
-        case Left(a) => Left(f(a))
-        case Right(b) => Right(g(b))
-      }
-}
-
-implicit def EitherBifunctorBi = new Bifunctor[Either] {
+  implicit def EitherBifunctorBi = new Bifunctor[Either] {
    //[A, B, R, S](f: A => B, g: R => S)Either[A,R] => Either[B,S] is not defined
 
-    def bimap[A,A1, B, B1, C, C1, D, D1](fa: Either[Either[A, A1],Either[B, B1]], f: Either[A,A1] => Either[C,C1], g: Either[B,B1] => Either[D,D1]) =
-      fa match {
-        case Left(a) => Left(f(a))
-        case Right(b) => Right(g(b))
-      }
   }
-
+*/
 
 
 /*
