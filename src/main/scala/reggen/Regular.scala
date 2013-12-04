@@ -195,6 +195,23 @@ object Regular {
   case class Comp2[A,R,F[A,R],D[F[A,R]]](unComp2:D[F])
   type :@@:[A,R,F[A,R],D[F[A,R]]] = Comp2[A,R,F,D]
 
+
+  /*
+  -- | *********************************************
+  -- | ** Definicion generica del functor de tipo **
+  -- | *********************************************
+
+  pmap :: (Regular2 d, Bifunctor (PF2 d)) => (a -> b) -> d a -> d b
+  pmap f = to2 . bimap f (pmap f) . from2 
+        == to2(bimap f (pmap f) from2 da )  
+*/
+  def pmap[A,B,D[_]:Regular2,DF2D[_,_]:Bifunctor](da:D[A],f:A=>B):D[B]={
+    val d=implicitly[Regular2[D]]
+    val bf=implicitly[Bifunctor[DF2D]]
+    //bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
+    d.to2(bf.bimap(d.from2(da),f, (x:D[A])=>pmap(x,f)))
+  }
+
   /*
   instance (Regular2 d, Bifunctor (PF2 d), Bifunctor f) => Bifunctor (d :@@: f) where
      bimap f g x = Comp2 $ pmap (bimap f g) $ unComp2 x
@@ -209,9 +226,20 @@ object Regular {
     val bf=implicitly[Bifunctor[F]]
     val d=implicitly[Regular2[D]]
     def bimap[A, R, B, S](fa: Comp2[A,R,F,PF2D], f: A => B, g: R => S): Comp2[B,S,F,PF2D]= Comp2(
-      pmap(fa.unComp2, bf.bimap(_,f,g))
+      pmap(fa.unComp2, (x:F[A,R]) => bf.bimap(x,f,g))
     )
   }
+  //def bimap[A, R, B, S](fa: F[A, R], f: A => B, g: R => S): F[B, S]
+  /*
+   no type parameters for method 
+   pmap: (da: D[A], f: A => B)(implicit evidence$6: Regular.Regular2[D], 
+   implicit evidence$7: Regular.Bifunctor[DF2D])
+   D[B] 
+
+   exist so that it can be applied to arguments 
+   (this.PF2D[F], F[A,R] => F[B,S]):Comp2[B,S,F,PF2D]
+
+  */
 
 
 /*
@@ -228,21 +256,7 @@ object Regular {
     h(bf.bimap(d.from2, identity ,(fold2(_,h))))
   }
 
-/*
-  -- | *********************************************
-  -- | ** Definicion generica del functor de tipo **
-  -- | *********************************************
 
-  pmap :: (Regular2 d, Bifunctor (PF2 d)) => (a -> b) -> d a -> d b
-  pmap f = to2 . bimap f (pmap f) . from2 
-        == to2(bimap f (pmap f) from2 da )  
-*/
-  def pmap[A,B,D[_]:Regular2,DF2D[_,_]:Bifunctor](da:D[A],f:A=>B):D[B]={
-    val d=implicitly[Regular2[D]]
-    val bf=implicitly[Bifunctor[DF2D]]
-    //bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
-    d.to2(bf.bimap(d.from2(da),f, pmap(f,_)))
-  }
 
 /*
   -- Alternativamente:
