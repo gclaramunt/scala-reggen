@@ -216,6 +216,9 @@ object Regular {
   instance (Regular2 d, Bifunctor (PF2 d), Bifunctor f) => Bifunctor (d :@@: f) where
      bimap f g x = Comp2 $ pmap (bimap f g) $ unComp2 x
   */
+
+
+  
   trait CompApply[D[_],F[_,_],PF2[_,_]]{
     type PF2D[X]=PF2[X,D[X]]
     type BF[A,R]=Comp2[A,R,F,PF2D]
@@ -229,17 +232,6 @@ object Regular {
       pmap(fa.unComp2, (x:F[A,R]) => bf.bimap(x,f,g))(d,bf)
     )
   }
-  //def bimap[A, R, B, S](fa: F[A, R], f: A => B, g: R => S): F[B, S]
-  /*
-   no type parameters for method 
-   pmap: (da: D[A], f: A => B)(implicit evidence$6: Regular.Regular2[D], 
-   implicit evidence$7: Regular.Bifunctor[DF2D])
-   D[B] 
-
-   exist so that it can be applied to arguments 
-   (this.PF2D[F], F[A,R] => F[B,S]):Comp2[B,S,F,PF2D]
-
-  */
 
 
 /*
@@ -253,7 +245,7 @@ object Regular {
   def fold2[A,B,D[A]:Regular2,PF2D[A,B]:Bifunctor](da:D[A],h:PF2D[A,B]=>B):B={
     val bf=implicitly[Bifunctor[PF2D]]
     val d=implicitly[Regular2[D]]
-    h(bf.bimap(d.from2(da), identity ,((x:D[A])=>fold2(x,h))))
+    h(bf.bimap(d.from2(da), identity ,((x:D[A])=>fold2(x,h)(d,bf))))
   }
 
 
