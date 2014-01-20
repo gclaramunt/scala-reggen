@@ -209,7 +209,7 @@ object Regular {
     val d=implicitly[Regular2[D]]
     val bf=implicitly[Bifunctor[DF2D]]
     //bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
-    d.to2(bf.bimap(d.from2(da),f, (x:D[A])=>pmap(x,f)))
+    d.to2(bf.bimap(d.from2(da),f, (x:D[A])=>pmap(x,f)(d,bf)))
   }
 
   /*
@@ -226,7 +226,7 @@ object Regular {
     val bf=implicitly[Bifunctor[F]]
     val d=implicitly[Regular2[D]]
     def bimap[A, R, B, S](fa: Comp2[A,R,F,PF2D], f: A => B, g: R => S): Comp2[B,S,F,PF2D]= Comp2(
-      pmap(fa.unComp2, (x:F[A,R]) => bf.bimap(x,f,g))
+      pmap(fa.unComp2, (x:F[A,R]) => bf.bimap(x,f,g))(d,bf)
     )
   }
   //def bimap[A, R, B, S](fa: F[A, R], f: A => B, g: R => S): F[B, S]
@@ -250,10 +250,10 @@ object Regular {
   fold2  :: (Regular2 d, Bifunctor (PF2 d)) => (PF2 d a b -> b) -> d a -> b
   fold2 h = h . bimap id (fold2 h) . from2
 */
-  def fold2[A,B,D[A]:Regular,PF2D[A,B]:Bifunctor](da:D[A],h:PF2D[A,B]=>B):B={
-    val bf=implicitly[Bifunctor[F]]
+  def fold2[A,B,D[A]:Regular2,PF2D[A,B]:Bifunctor](da:D[A],h:PF2D[A,B]=>B):B={
+    val bf=implicitly[Bifunctor[PF2D]]
     val d=implicitly[Regular2[D]]
-    h(bf.bimap(d.from2, identity ,(fold2(_,h))))
+    h(bf.bimap(d.from2(da), identity ,((x:D[A])=>fold2(x,h))))
   }
 
 
