@@ -1,3 +1,5 @@
+package reggen
+
 import scala.language.higherKinds
 
 object Regular {
@@ -218,12 +220,12 @@ object Regular {
   */
 
 
-  
+  /*
   trait CompApply[D[_],F[_,_],PF2[_,_]]{
     type PF2D[X]=PF2[X,D[X]]
     type BF[A,R]=Comp2[A,R,F,PF2D]
   }
-
+*/
   implicit def BiComp[F[_,_]:Bifunctor,D[_]:Regular2,PF2[_,_]:Bifunctor]=new Bifunctor[CompApply[D,F,PF2]#BF]{
     type PF2D[X]=CompApply[D,F,PF2]#PF2D[X]
     val bf=implicitly[Bifunctor[F]]
