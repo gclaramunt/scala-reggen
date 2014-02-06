@@ -172,15 +172,21 @@ object Regular {
     //    from2 :: t a -> (PF2 t) a (t a)  --- recibe t a y devuelve el tipo resultante de aplicar a PF2(t) a y t a
     //    to2   :: (PF2 t) a (t a) ->  t a
 
-    trait Regular2[T[_]]{
-      def from2[A]:T[A]=>PF2[A,T] 
-      def to2[A]:PF2[A,T]=>T[A]
-    }
   */
+  trait PF2[T[_,_]] {
+    type INST
+  }
+
   trait Regular2[T[_]]{
     def from2[A,PF2[_,_]]:T[A]=>PF2[A,T[A]] 
     def to2[A,PF2[_,_]]:PF2[A,T[A]]=>T[A]
   }
+
+
+  type PARREC=:**:[A,R,Par[_,_],Rec[_,_]]
+  type BF_LIST=U2:++:PARREC
+  implicit def pf2OfList = new PF2[List]{ type INST= BF_LIST}
+  //implicit def regOfList= new 
 
   //trait PF2[TT[_],RR[_,_]]
   /*
@@ -194,9 +200,16 @@ object Regular {
 
   data (d :@@: f) a r = Comp2 {unComp2 :: d (f a r)}
   */
-  case class Comp2[A,R,F[A,R],D[F[A,R]]](unComp2:D[F])
+  case class Comp2[A,R,F[A,R],D[F[A,R]]](unComp2:D[F]){
+    type PF2D[X]=PF2[X,D[X]]
+  }
   type :@@:[A,R,F[A,R],D[F[A,R]]] = Comp2[A,R,F,D]
 
+/*
+  trait CompApply[D[_],F[_,_],PF2[_,_]]{
+    type PF2D[X]=PF2[X,D[X]]
+    type BF[A,R]=Comp2[A,R,F,PF2D]
+  }*/
 
   /*
   -- | *********************************************
@@ -207,9 +220,7 @@ object Regular {
   pmap f = to2 . bimap f (pmap f) . from2 
         == to2(bimap f (pmap f) from2 da )  
 */
-  def pmap[A,B,D[_]:Regular2,DF2D[_,_]:Bifunctor](da:D[A],f:A=>B):D[B]={
-    val d=implicitly[Regular2[D]]
-    val bf=implicitly[Bifunctor[DF2D]]
+  def pmap[A,B,D[_]](da:D[A],f:A=>B)(implicit d:Regular2[D], pf2:PF2[D], bf:Bifunctor[DF2D]):D[B]={
     //bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
     d.to2(bf.bimap(d.from2(da),f, (x:D[A])=>pmap(x,f)(d,bf)))
   }
@@ -219,21 +230,20 @@ object Regular {
      bimap f g x = Comp2 $ pmap (bimap f g) $ unComp2 x
   */
 
-
-  /*
-  trait CompApply[D[_],F[_,_],PF2[_,_]]{
-    type PF2D[X]=PF2[X,D[X]]
-    type BF[A,R]=Comp2[A,R,F,PF2D]
-  }
-*/
   implicit def BiComp[F[_,_]:Bifunctor,D[_]:Regular2,PF2[_,_]:Bifunctor]=new Bifunctor[CompApply[D,F,PF2]#BF]{
-    type PF2D[X]=CompApply[D,F,PF2]#PF2D[X]
+    
     val bf=implicitly[Bifunctor[F]]
     val d=implicitly[Regular2[D]]
     def bimap[A, R, B, S](fa: Comp2[A,R,F,PF2D], f: A => B, g: R => S): Comp2[B,S,F,PF2D]= Comp2(
       pmap(fa.unComp2, (x:F[A,R]) => bf.bimap(x,f,g))(d,bf)
     )
   }
+
+/*
+ trait Bifunctor[F[_, _]] {
+    def bimap[A, R, B, S](fa: F[A, R], f: A => B, g: R => S): F[B, S]
+  }
+*/
 
 
 /*
