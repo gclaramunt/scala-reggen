@@ -149,14 +149,15 @@ object Regular {
     data (f :**: g) a r = f a r :**: g a r
   */
 
-  case class :**:[A,R,F[_,_],G[_,_]](f:F[A,R],g:G[A,R])
+  //:**:
+  case class **[A,R,F[_,_],G[_,_]](f:F[A,R],g:G[A,R])
 
   /*
   instance (Bifunctor t, Bifunctor u) => Bifunctor (t :**: u) where
      bimap f g (x :**: y) = bimap f g x :**: bimap f g y
   */
-  implicit def BiStar[F[_,_],G[_,_]](implicit bf:Bifunctor[F],bg:Bifunctor[G])=new Bifunctor[({type λ[A,R]= :**:[A,R,F,G]})#λ] {
-    def bimap[A, R, B, S](fa: :**:[A,R,F,G], f: A => B, g: R => S): :**:[B,S,F,G]= :**:(bf.bimap(fa.f,f,g),bg.bimap(fa.g,f,g))
+  implicit def BiStar[F[_,_],G[_,_]](implicit bf:Bifunctor[F],bg:Bifunctor[G])=new Bifunctor[({type λ[A,R]= **[A,R,F,G]})#λ] {
+    def bimap[A, R, B, S](fa: **[A,R,F,G], f: A => B, g: R => S): **[B,S,F,G]= **(bf.bimap(fa.f,f,g),bg.bimap(fa.g,f,g))
   }
 
 
@@ -183,8 +184,8 @@ object Regular {
   }
 
 
-  type PARREC=:**:[A,R,Par[_,_],Rec[_,_]]
-  type BF_LIST=U2:++:PARREC
+  type PARREC[A]= **[A,List[A],Par[A,List[A]],Rec[A,List[A]]]
+  type BF_LIST[A]=U2:++:PARREC[A,List]
   implicit def pf2OfList = new PF2[List]{ type INST= BF_LIST}
   //implicit def regOfList= new 
 
