@@ -153,13 +153,18 @@ type family PF a :: * -> *
 class Regular a where
    from :: a -> (PF a) a
    to   :: (PF a) a -> a
-
+*/
+/*
 -- | Ejemplo: Veamos la definicion del tipo TreeInt (arboles binarios de enteros)
 -- | en terminos de la clase Regular.
 
 data TreeInt = LeafI Int | NodeI TreeInt TreeInt
   deriving Show
-
+*/
+trait TreeInt
+case LeafI(i:Int) extends TreeInt
+case NodeI(l:TreeInt,r:TreeInt) extends TreeInt
+/*
 -- | La definicion del functor base de TreeInt se hace mediante la introduccion
 -- | de una instancia de la familia PF.
 -- | Corresponde al functor: F A = Int + A x A.
