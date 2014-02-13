@@ -154,6 +154,16 @@ class Regular a where
    from :: a -> (PF a) a
    to   :: (PF a) a -> a
 */
+
+trait PF[T]{
+  //todo: type constructor
+}
+
+trait Regular[T]{
+  def from(t:T):PF[T] 
+  def to(pf:PF[T]):T
+}
+
 /*
 -- | Ejemplo: Veamos la definicion del tipo TreeInt (arboles binarios de enteros)
 -- | en terminos de la clase Regular.
@@ -161,15 +171,21 @@ class Regular a where
 data TreeInt = LeafI Int | NodeI TreeInt TreeInt
   deriving Show
 */
-trait TreeInt
-case LeafI(i:Int) extends TreeInt
-case NodeI(l:TreeInt,r:TreeInt) extends TreeInt
+trait TreeInt{}
+case class LeafI(i:Int) extends TreeInt
+case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 /*
 -- | La definicion del functor base de TreeInt se hace mediante la introduccion
 -- | de una instancia de la familia PF.
 -- | Corresponde al functor: F A = Int + A x A.
 
 type instance PF TreeInt = K Int :+: (I :*: I)
+*/
+
+
+
+
+/*
 
 -- | Definicion de la instancia de Regular para TreeInt.
 
