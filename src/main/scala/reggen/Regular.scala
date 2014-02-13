@@ -129,14 +129,10 @@ newtype (f :@: g) r = Comp {unComp :: f (g r)}
 instance (Functor f, Functor g) => Functor (f :@: g) where
   fmap f r = Comp $ fmap (fmap f) $ unComp r
 */
-case class |@|[F,G](f:F,g:G)
+case class Comp[F[_],G[_],R](unComp:F[G[R]]) //actually is F[G[_]]
 
-trait FunctorComp[F[_],G[_]]{
-  type abs[A]= F[A]|@|G[A]
-}
-
-implicit def fstar[A,F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorComp[F,G]#abs]{
-  def fmap[A,B](fga:F[A]|@|G[A])(f: A => B):F[B]|@|G[B]= |@|(ff.fmap(fga.f)(f),fg.fmap(fga.g)(f))
+implicit def fcomp[A,F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
+  def fmap[A,B](fga:Comp[F,G,A])(f: A => B):Comp[F,G,B]= Comp(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
 }
 
 /*
