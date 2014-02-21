@@ -2,6 +2,7 @@ package reggen
 
 import scala.language.higherKinds
 import scala.language.existentials //double check 
+import scala.language.implicitConversions
 
 //non-parametric regular types
 object Regular {
@@ -68,9 +69,9 @@ instance Functor I where
   fmap f (I r) = I (f r)
 
 */
-case class Id[T](unI:T)
-implicit def FId =new Functor[Id]{
-  def fmap[A, B](ida: Id[A])(f: A => B):Id[B]=Id(f(ida.unI))
+case class I[T](unI:T)
+implicit def FId =new Functor[I]{
+  def fmap[A, B](ida: I[A])(f: A => B):I[B]=I(f(ida.unI))
 }
 
 /*
@@ -157,6 +158,7 @@ class Regular a where
 
 trait PF[T]{
   //todo: type constructor
+  type F[_]
 }
 
 trait Regular[T]{
@@ -181,8 +183,9 @@ case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 
 type instance PF TreeInt = K Int :+: (I :*: I)
 */
-
-
+ trait PFTreeInt extends PF[TreeInt]{
+  type F[A]= K[Int,A]:+:(I[A]:*:I[A])
+ }
 
 
 /*
@@ -195,6 +198,16 @@ instance Regular TreeInt where
 
   to (L (K n))         = LeafI n
   to (R (I x :*: I y)) = NodeI x y
+  */
+
+  implicit def fromTreeInt(t:TreeInt):PFTreeInt#F[TreeInt]=t match {
+    case LeafI(n) => L(K(n))
+    case NodeI(x,y) => R(:*:(I(x),I(y)))
+  }
+
+  implicit def toTreeInt()
+
+  /*
 
 -- | Tipos parametricos tambien se pueden representar mediante la clase Regular.
 -- | Como se vio en el curso, esto se hace usando un functor parametrizado.
