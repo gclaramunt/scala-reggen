@@ -187,7 +187,6 @@ type instance PF TreeInt = K Int :+: (I :*: I)
   type F[A]= K[Int,A]:+:(I[A]:*:I[A])
  }
 
-
 /*
 
 -- | Definicion de la instancia de Regular para TreeInt.
@@ -200,12 +199,20 @@ instance Regular TreeInt where
   to (R (I x :*: I y)) = NodeI x y
   */
 
-  implicit def fromTreeInt(t:TreeInt):PFTreeInt#F[TreeInt]=t match {
-    case LeafI(n) => L(K(n))
-    case NodeI(x,y) => R(:*:(I(x),I(y)))
+  implicit def regularTreeInt:Regular[TreeInt]=new Regular[TreeInt]{
+    def from(t:TreeInt):PF[TreeInt] = t match {
+      case LeafI(n) => L(K(n))
+      case NodeI(x,y) => R(:*:(I(from(x)),I(from(y))))
+    }
+
+    def to(pf:PF[TreeInt]):TreeInt=  t match {
+      case L(K(n)) => LeafI(to(n))
+      case R(:*:(I(x),I(y))) => NodeI(to(x),to(y))
+    }
   }
 
-  implicit def toTreeInt()
+
+  //implicit def toTreeInt()
 
   /*
 
