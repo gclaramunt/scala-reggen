@@ -24,7 +24,6 @@ trait Functor[F[_]] {
 }
 
 
-
 /*
 
 infixr 6 :+:
@@ -38,7 +37,7 @@ instance Functor (K a) where
   fmap _ (K a) = K a
 */
 
-case class K[A,R](unK:A) 
+case class K[A,R](unK:A)//  extends PF[R]
 
 implicit def FK[A] =new Functor[({type λ[B]=K[A,B]})#λ]{
   def fmap[A1, B1](ka: K[A,A1])(f: A1 => B1): K[A,B1]=K(ka.unK)
@@ -52,7 +51,7 @@ data U r = U
 instance Functor U where
   fmap _ U = U
 */
-case class U[R]() 
+case class U[R]()//  extends PF[R]
 
 implicit def FU =new Functor[U]{
   def fmap[A, B](ua: U[A])(f: A => B):U[B]=U()
@@ -69,7 +68,7 @@ instance Functor I where
   fmap f (I r) = I (f r)
 
 */
-case class I[T](unI:T)
+case class I[R](unI:R)//  extends PF[R]
 implicit def FId =new Functor[I]{
   def fmap[A, B](ida: I[A])(f: A => B):I[B]=I(f(ida.unI))
 }
@@ -86,7 +85,7 @@ instance (Functor f, Functor g) => Functor (f :+: g) where
 
 */
 
-trait :+:[F,G]
+trait :+:[F,G] // extends PF[R]
 
 case class L[F,G](f:F) extends :+:[F,G]
 case class R[F,G](g:G) extends :+:[F,G]
@@ -112,7 +111,7 @@ instance (Functor f, Functor g) => Functor (f :*: g) where
   fmap f (x :*: y) = fmap f x :*: fmap f y
 
 */
-case class :*:[F,G](f:F,g:G)
+case class :*:[F,G](f:F,g:G) // extends PF[R]
 
 trait FunctorProd[F[_],G[_]]{
   type abs[A]= F[A]:*:G[A]
@@ -130,7 +129,7 @@ newtype (f :@: g) r = Comp {unComp :: f (g r)}
 instance (Functor f, Functor g) => Functor (f :@: g) where
   fmap f r = Comp $ fmap (fmap f) $ unComp r
 */
-case class Comp[F[_],G[_],R](unComp:F[G[R]]) //actually is F[G[_]]
+case class Comp[F[_],G[_],R](unComp:F[G[R]]) // extends PF[R] 
 
 implicit def fcomp[A,F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
   def fmap[A,B](fga:Comp[F,G,A])(f: A => B):Comp[F,G,B]= Comp(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
@@ -155,14 +154,17 @@ class Regular a where
    from :: a -> (PF a) a
    to   :: (PF a) a -> a
 */
-
+/*
 trait PF[T]{
   //todo: type constructor
-  type F[_]
+  type F
+  def apply(t:T):F
+  def apply(pf:F):T
 }
-
+*/
 trait Regular[T]{
-  def from(t:T):PF[T] 
+  type PF[_]
+  def from(t:T):PF[T]
   def to(pf:PF[T]):T
 }
 
@@ -183,11 +185,17 @@ case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 
 type instance PF TreeInt = K Int :+: (I :*: I)
 */
- trait PFTreeInt extends PF[TreeInt]{
-  type F[A]= K[Int,A]:+:(I[A]:*:I[A])
- }
-
 /*
+ trait PFTreeInt extends PF[TreeInt]{
+  type F[R]= K[Int,R]:+:(I[R]:*:I[R])
+ }
+*/
+/*
+
+
+class Regular TreeInt where
+   from :: TreeInt -> (PF TreeInt) TreeInt
+   to   :: (PF TreeInt) TreeInt -> TreeInt
 
 -- | Definicion de la instancia de Regular para TreeInt.
 
@@ -200,19 +208,19 @@ instance Regular TreeInt where
   */
 
   implicit def regularTreeInt:Regular[TreeInt]=new Regular[TreeInt]{
+
+    type PF[R] = K[Int,R]:+:(I[R]:*:I[R])
+
     def from(t:TreeInt):PF[TreeInt] = t match {
       case LeafI(n) => L(K(n))
-      case NodeI(x,y) => R(:*:(I(from(x)),I(from(y))))
+      case NodeI(x,y) => R(:*:(I(x),I(y)))
     }
 
-    def to(pf:PF[TreeInt]):TreeInt=  t match {
-      case L(K(n)) => LeafI(to(n))
-      case R(:*:(I(x),I(y))) => NodeI(to(x),to(y))
+    def to(pf:PF[TreeInt]):TreeInt=  pf match {
+      case L(K(n)) => LeafI(n)
+      case R(:*:(I(x),I(y))) => NodeI(x,y)
     }
   }
-
-
-  //implicit def toTreeInt()
 
   /*
 
@@ -233,7 +241,24 @@ instance Regular (List a) where
 
   to (L U)              = Nil
   to (R (K x :*: I xs)) = Cons x xs
+*/
 
+implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
+
+    type PF[R] = U[R]:+:(K[A,R]:*:I[R])
+
+    def from(t:List[A]):PF[List[A]] = t match {
+      case Nil => L(U())
+      case x::xs => R(:*:(K(x),I(xs)))
+    }
+
+    def to(pf:PF[List[A]]):List[A]=  pf match {
+      case L(U()) => Nil
+      case R(:*:(K(x),I(xs))) => x::xs
+    }
+  }
+
+/*
 -- | Definicion generica del operador fold.
 -- | Esta definicion es valida para todo tipo "d" que sea instancia de Regular
 -- | y cuyo functor "PF d" sea instancia de Functor.
