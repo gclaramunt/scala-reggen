@@ -265,6 +265,10 @@ implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
 
 fold  :: (Regular d, Functor (PF d)) => (PF d a -> a) -> d -> a
 fold h = h . fmap (fold h) . from
+*/
+def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A=throw new Exception() 
+
+/*
 
 -- | Ejemplos
 
