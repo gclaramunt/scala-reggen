@@ -163,7 +163,7 @@ trait PF[T]{
 }
 */
 trait Regular[T]{
-  type PF[_]
+  type PF[_]//must be functor
   def from(t:T):PF[T]
   def to(pf:PF[T]):T
 }
@@ -268,8 +268,20 @@ def fold[R,A,D](d:D)(implicit REG:Regular[D],F:REG#PF[R]):(REG#PF[R]=>R)=>A=
 
 fold  :: (Regular d, Functor (PF d)) => (PF d a -> a) -> d -> a
 fold h = h . fmap (fold h) . from
+
+
+type family PF a :: * -> *
+
+class Regular a where
+   from :: a -> (PF a) a
+   to   :: (PF a) a -> a
+
+
+fmap :: (a -> b) -> (f a -> f b)   
+
 */
-def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A=throw new Exception() 
+def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D], ff:Functor[Regular[D]#PF]):A=
+  h(ff.fmap(r.from(d))(fold(_)(h)))
 
 
 /*
@@ -287,5 +299,11 @@ sumList = fold h
     h (L U)             = 0
     h (R (K n :*: I m)) = n + m
   */
-  
+/*
+def sumTreeInt(t:TreeInt)=fold(t)((x:Regular[TreeInt]#PF[Int])=>x match {
+    case L(K(n))=>n
+    case R(:*:(I(n),I(m))) => n+m
+  })
+
+ */ 
 }
