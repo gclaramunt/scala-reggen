@@ -259,6 +259,9 @@ implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
   }
 
 /*
+def fold[R,A,D](d:D)(implicit REG:Regular[D],F:REG#PF[R]):(REG#PF[R]=>R)=>A=
+  h=>h(F.fmap(from(d))(d1=>fold(from(d1)(h))))
+  
 -- | Definicion generica del operador fold.
 -- | Esta definicion es valida para todo tipo "d" que sea instancia de Regular
 -- | y cuyo functor "PF d" sea instancia de Functor.
@@ -268,8 +271,8 @@ fold h = h . fmap (fold h) . from
 */
 def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A=throw new Exception() 
 
-/*
 
+/*
 -- | Ejemplos
 
 sumTreeInt :: TreeInt -> Int
