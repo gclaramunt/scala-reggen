@@ -1,7 +1,6 @@
 package reggen
 
 import scala.language.higherKinds
-import scala.language.existentials //double check 
 import scala.language.implicitConversions
 
 //non-parametric regular types
@@ -37,7 +36,7 @@ instance Functor (K a) where
   fmap _ (K a) = K a
 */
 
-case class K[A,R](unK:A)//  extends PF[R]
+case class K[A,R](unK:A)
 
 implicit def FK[A] =new Functor[({type λ[B]=K[A,B]})#λ]{
   def fmap[A1, B1](ka: K[A,A1])(f: A1 => B1): K[A,B1]=K(ka.unK)
@@ -51,7 +50,7 @@ data U r = U
 instance Functor U where
   fmap _ U = U
 */
-case class U[R]()//  extends PF[R]
+case class U[Z]()
 
 implicit def FU =new Functor[U]{
   def fmap[A, B](ua: U[A])(f: A => B):U[B]=U()
@@ -68,7 +67,7 @@ instance Functor I where
   fmap f (I r) = I (f r)
 
 */
-case class I[R](unI:R)//  extends PF[R]
+case class I[Z](unI:Z)
 implicit def FId =new Functor[I]{
   def fmap[A, B](ida: I[A])(f: A => B):I[B]=I(f(ida.unI))
 }
@@ -85,7 +84,7 @@ instance (Functor f, Functor g) => Functor (f :+: g) where
 
 */
 
-trait :+:[F,G] // extends PF[R]
+trait :+:[F,G] 
 
 case class L[F,G](f:F) extends :+:[F,G]
 case class R[F,G](g:G) extends :+:[F,G]
@@ -111,7 +110,7 @@ instance (Functor f, Functor g) => Functor (f :*: g) where
   fmap f (x :*: y) = fmap f x :*: fmap f y
 
 */
-case class :*:[F,G](f:F,g:G) // extends PF[R]
+case class :*:[F,G](f:F,g:G) 
 
 trait FunctorProd[F[_],G[_]]{
   type abs[A]= F[A]:*:G[A]
@@ -129,7 +128,7 @@ newtype (f :@: g) r = Comp {unComp :: f (g r)}
 instance (Functor f, Functor g) => Functor (f :@: g) where
   fmap f r = Comp $ fmap (fmap f) $ unComp r
 */
-case class Comp[F[_],G[_],R](unComp:F[G[R]]) // extends PF[R] 
+case class Comp[F[_],G[_],Z](unComp:F[G[Z]])  
 
 implicit def fcomp[A,F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
   def fmap[A,B](fga:Comp[F,G,A])(f: A => B):Comp[F,G,B]= Comp(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
@@ -163,7 +162,7 @@ trait PF[T]{
 }
 */
 trait Regular[T]{
-  type PF[_]//must be functor
+  type PF[_] //must be functor
   def from(t:T):PF[T]
   def to(pf:PF[T]):T
 }
@@ -184,13 +183,6 @@ case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 -- | Corresponde al functor: F A = Int + A x A.
 
 type instance PF TreeInt = K Int :+: (I :*: I)
-*/
-/*
- trait PFTreeInt extends PF[TreeInt]{
-  type F[R]= K[Int,R]:+:(I[R]:*:I[R])
- }
-*/
-/*
 
 
 class Regular TreeInt where
@@ -209,7 +201,7 @@ instance Regular TreeInt where
 
   implicit def regularTreeInt:Regular[TreeInt]=new Regular[TreeInt]{
 
-    type PF[R] = K[Int,R]:+:(I[R]:*:I[R])
+    type PF[Z] = K[Int,Z]:+:(I[Z]:*:I[Z])
 
     def from(t:TreeInt):PF[TreeInt] = t match {
       case LeafI(n) => L(K(n))
@@ -245,8 +237,8 @@ instance Regular (List a) where
 
 implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
 
-    type PF[R] = U[R]:+:(K[A,R]:*:I[R])
-
+    type PF[Z] = U[Z]:+:(K[A,Z]:*:I[Z])
+    
     def from(t:List[A]):PF[List[A]] = t match {
       case Nil => L(U())
       case x::xs => R(:*:(K(x),I(xs)))
@@ -259,8 +251,6 @@ implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
   }
 
 /*
-def fold[R,A,D](d:D)(implicit REG:Regular[D],F:REG#PF[R]):(REG#PF[R]=>R)=>A=
-  h=>h(F.fmap(from(d))(d1=>fold(from(d1)(h))))
   
 -- | Definicion generica del operador fold.
 -- | Esta definicion es valida para todo tipo "d" que sea instancia de Regular
@@ -299,11 +289,22 @@ sumList = fold h
     h (L U)             = 0
     h (R (K n :*: I m)) = n + m
   */
-/*
-def sumTreeInt(t:TreeInt)=fold(t)((x:Regular[TreeInt]#PF[Int])=>x match {
-    case L(K(n))=>n
-    case R(:*:(I(n),I(m))) => n+m
-  })
 
- */ 
+  def mkTree(t:TreeInt)(implicit ff:Functor[Regular[TreeInt]#PF])={
+    val h:Regular[TreeInt]#PF[Any]=>String = {
+      case L(K(n))=>n.toString
+      case R(:*:(I(n),I(m))) => n+","+m
+    }
+    fold(t)(h)
+  }
+
+  def mkList[A](t:List[A])(implicit ff:Functor[Regular[List[A]]#PF])={
+    type PF=Regular[List[A]]#PF[Any]
+    val h:PF=>Int ={
+      case L(U)=>0
+      case R(:*:(K(n),I(m))) => n.asInstanceOf[Int]+m.asInstanceOf[Int] //to be done right soon
+    }
+    fold(t)(h)
+  }
+  
 }
