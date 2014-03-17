@@ -93,7 +93,7 @@ instance (Functor f, Functor g) => Functor (f :+: g) where
     type abs[A]= F[A]:+:G[A]
   }
 
-  implicit def fplus[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorCoprod[F,G]#abs]{
+  implicit def fplus[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorCoprod[F,G]#abs]{
     def fmap[A,B](fga:F[A]:+:G[A])(f: A => B):F[B]:+:G[B]= fga match {
       case L(lf) => L(ff.fmap(lf)(f))
       case R(rg) => R(fg.fmap(rg)(f))
@@ -116,7 +116,7 @@ instance (Functor f, Functor g) => Functor (f :*: g) where
     type abs[A]= F[A]:*:G[A]
   }
 
-  implicit def fstar[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorProd[F,G]#abs]{
+  implicit def fstar[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorProd[F,G]#abs]{
     def fmap[A,B](fga:F[A]:*:G[A])(f: A => B):F[B]:*:G[B]= :*:(ff.fmap(fga.f)(f),fg.fmap(fga.g)(f))
   }
 
@@ -130,7 +130,7 @@ instance (Functor f, Functor g) => Functor (f :@: g) where
 */
   case class Comp[F[_],G[_],Z](unComp:F[G[Z]])  
 
-  implicit def fcomp[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
+  implicit def fcomp[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
     def fmap[A,B](fga:Comp[F,G,A])(f: A => B):Comp[F,G,B]= Comp(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
   }
 
@@ -238,6 +238,7 @@ instance Regular (List a) where
 implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
 
     //type PF[Z] = U[Z]:+:(K[A,Z]:*:I[Z])
+
     type PFL[Z] = U[Z]
     type PFK[Z] = K[A,Z]
     type PFR[Z] = PFK[Z]:*:I[Z]
@@ -308,4 +309,17 @@ fmap :: (a -> b) -> (f a -> f b)
   println("count of tree int = " + fold(t)(count))
   println("count of list A = " + fold(l)(count))
 
+
+  def max[Z]:Regular[Z]#PF[Int]=>Int = {
+      case U() => 0
+      case k:K[Int,Z] @unchecked=> k.unK
+      case i:I[Int] @unchecked=> i.unI 
+      case l:L[Regular[Z]#PF[Int],_] @unchecked => max(l.f)
+      case r:R[_,Regular[Z]#PF[Int]] @unchecked => max(r.g)
+      case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => Math.max(max(star.f),max(star.g))
+      case c:Comp[_,_,_] => 0 // ??
+    }
+
+  println("max of tree int = " + fold(t)(max))
+  println("max of list A = " + fold(l)(max))
 }
