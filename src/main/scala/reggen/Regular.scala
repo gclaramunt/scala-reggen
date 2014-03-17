@@ -4,7 +4,7 @@ import scala.language.higherKinds
 import scala.language.implicitConversions
 
 //non-parametric regular types
-object Regular {
+object Regular extends App{
 
   /*
 -- | *******************
@@ -93,7 +93,7 @@ trait FunctorCoprod[F[_],G[_]]{
   type abs[A]= F[A]:+:G[A]
 }
 
-implicit def fplus[A,F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorCoprod[F,G]#abs]{
+implicit def fplus[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorCoprod[F,G]#abs]{
   def fmap[A,B](fga:F[A]:+:G[A])(f: A => B):F[B]:+:G[B]= fga match {
     case L(lf) => L(ff.fmap(lf)(f))
     case R(rg) => R(fg.fmap(rg)(f))
@@ -116,7 +116,7 @@ trait FunctorProd[F[_],G[_]]{
   type abs[A]= F[A]:*:G[A]
 }
 
-implicit def fstar[A,F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorProd[F,G]#abs]{
+implicit def fstar[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorProd[F,G]#abs]{
   def fmap[A,B](fga:F[A]:*:G[A])(f: A => B):F[B]:*:G[B]= :*:(ff.fmap(fga.f)(f),fg.fmap(fga.g)(f))
 }
 
@@ -130,9 +130,10 @@ instance (Functor f, Functor g) => Functor (f :@: g) where
 */
 case class Comp[F[_],G[_],Z](unComp:F[G[Z]])  
 
-implicit def fcomp[A,F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
+implicit def fcomp[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
   def fmap[A,B](fga:Comp[F,G,A])(f: A => B):Comp[F,G,B]= Comp(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
 }
+
 
 /*
 
@@ -163,6 +164,7 @@ trait PF[T]{
 */
 trait Regular[T]{
   type PF[_] //must be functor
+  val ff:Functor[PF] 
   def from(t:T):PF[T]
   def to(pf:PF[T]):T
 }
@@ -201,7 +203,12 @@ instance Regular TreeInt where
 
   implicit def regularTreeInt:Regular[TreeInt]=new Regular[TreeInt]{
 
-    type PF[Z] = K[Int,Z]:+:(I[Z]:*:I[Z])
+    //type PF[Z] = K[Int,Z]:+:(I[Z]:*:I[Z])
+    type PFL[Z] = K[Int,Z]
+    type PFR[Z] = (I[Z]:*:I[Z])
+    type PF[Z]=PFL[Z]:+:PFR[Z]
+
+    val ff=implicitly[Functor[PF]]
 
     def from(t:TreeInt):PF[TreeInt] = t match {
       case LeafI(n) => L(K(n))
@@ -237,7 +244,13 @@ instance Regular (List a) where
 
 implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
 
-    type PF[Z] = U[Z]:+:(K[A,Z]:*:I[Z])
+    //type PF[Z] = U[Z]:+:(K[A,Z]:*:I[Z])
+    type PFL[Z] = U[Z]
+    type PFK[Z] = K[A,Z]
+    type PFR[Z] = PFK[Z]:*:I[Z]
+    type PF[Z] = PFL[Z]:+:PFR[Z]
+
+    val ff=implicitly[Functor[PF]]
     
     def from(t:List[A]):PF[List[A]] = t match {
       case Nil => L(U())
@@ -270,8 +283,8 @@ class Regular a where
 fmap :: (a -> b) -> (f a -> f b)   
 
 */
-def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D], ff:Functor[Regular[D]#PF]):A=
-  h(ff.fmap(r.from(d))(fold(_)(h)))
+def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A=
+  h(r.ff.fmap(r.from(d))(fold(_)(h)))
 
 
 /*
@@ -290,21 +303,21 @@ sumList = fold h
     h (R (K n :*: I m)) = n + m
   */
 
-  def mkTree(t:TreeInt)(implicit ff:Functor[Regular[TreeInt]#PF])={
-    val h:Regular[TreeInt]#PF[Any]=>String = {
-      case L(K(n))=>n.toString
-      case R(:*:(I(n),I(m))) => n+","+m
+  def sum[Z]:Regular[Z]#PF[Int]=>Int = {
+      case U() => 0
+      case k:K[Int,Z] @unchecked=> k.unK
+      case i:I[Int] @unchecked=> i.unI     
+      case l:L[Regular[Z]#PF[Int],_] @unchecked => sum(l.f)
+      case r:R[_,Regular[Z]#PF[Int]] @unchecked => sum(r.g)
+      case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => sum(star.f)+sum(star.g)
+      case c:Comp[_,_,_] => 0 // ??
     }
-    fold(t)(h)
-  }
+ 
+  val t:TreeInt=NodeI(LeafI(1),LeafI(2))
 
-  def mkList[A](t:List[A])(implicit ff:Functor[Regular[List[A]]#PF])={
-    type PF=Regular[List[A]]#PF[Any]
-    val h:PF=>Int ={
-      case L(U)=>0
-      case R(:*:(K(n),I(m))) => n.asInstanceOf[Int]+m.asInstanceOf[Int] //to be done right soon
-    }
-    fold(t)(h)
-  }
-  
+  val l=List(1,2)
+
+
+  println(fold(t)(sum))
+  println(fold(l)(sum))
 }
