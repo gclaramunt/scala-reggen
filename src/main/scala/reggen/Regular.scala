@@ -18,9 +18,9 @@ object Regular extends App{
 -- |   fmap :: (a -> b) -> (f a -> f b)
 */
 
-trait Functor[F[_]] {
-  def fmap[A, B](fa: F[A])(f: A => B): F[B]
-}
+  trait Functor[F[_]] {
+    def fmap[A, B](fa: F[A])(f: A => B): F[B]
+  }
 
 
 /*
@@ -36,11 +36,11 @@ instance Functor (K a) where
   fmap _ (K a) = K a
 */
 
-case class K[A,R](unK:A)
+  case class K[A,R](unK:A)
 
-implicit def FK[A] =new Functor[({type λ[B]=K[A,B]})#λ]{
-  def fmap[A1, B1](ka: K[A,A1])(f: A1 => B1): K[A,B1]=K(ka.unK)
-}
+  implicit def FK[A] =new Functor[({type λ[B]=K[A,B]})#λ]{
+    def fmap[A1, B1](ka: K[A,A1])(f: A1 => B1): K[A,B1]=K(ka.unK)
+  }
 
 /*
 -- | Functor constante 1 (equivale a K ())
@@ -50,11 +50,11 @@ data U r = U
 instance Functor U where
   fmap _ U = U
 */
-case class U[Z]()
+  case class U[Z]()
 
-implicit def FU =new Functor[U]{
-  def fmap[A, B](ua: U[A])(f: A => B):U[B]=U()
-}
+  implicit def FU =new Functor[U]{
+    def fmap[A, B](ua: U[A])(f: A => B):U[B]=U()
+  }
 
 /*
 
@@ -67,10 +67,10 @@ instance Functor I where
   fmap f (I r) = I (f r)
 
 */
-case class I[Z](unI:Z)
-implicit def FId =new Functor[I]{
-  def fmap[A, B](ida: I[A])(f: A => B):I[B]=I(f(ida.unI))
-}
+  case class I[Z](unI:Z)
+  implicit def FId =new Functor[I]{
+    def fmap[A, B](ida: I[A])(f: A => B):I[B]=I(f(ida.unI))
+  }
 
 /*
 
@@ -84,21 +84,21 @@ instance (Functor f, Functor g) => Functor (f :+: g) where
 
 */
 
-trait :+:[F,G] 
+  trait :+:[F,G] 
 
-case class L[F,G](f:F) extends :+:[F,G]
-case class R[F,G](g:G) extends :+:[F,G]
+  case class L[F,G](f:F) extends :+:[F,G]
+  case class R[F,G](g:G) extends :+:[F,G]
 
-trait FunctorCoprod[F[_],G[_]]{
-  type abs[A]= F[A]:+:G[A]
-}
-
-implicit def fplus[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorCoprod[F,G]#abs]{
-  def fmap[A,B](fga:F[A]:+:G[A])(f: A => B):F[B]:+:G[B]= fga match {
-    case L(lf) => L(ff.fmap(lf)(f))
-    case R(rg) => R(fg.fmap(rg)(f))
+  trait FunctorCoprod[F[_],G[_]]{
+    type abs[A]= F[A]:+:G[A]
   }
-}
+
+  implicit def fplus[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorCoprod[F,G]#abs]{
+    def fmap[A,B](fga:F[A]:+:G[A])(f: A => B):F[B]:+:G[B]= fga match {
+      case L(lf) => L(ff.fmap(lf)(f))
+      case R(rg) => R(fg.fmap(rg)(f))
+    }
+  }
 
 
 /*
@@ -110,15 +110,15 @@ instance (Functor f, Functor g) => Functor (f :*: g) where
   fmap f (x :*: y) = fmap f x :*: fmap f y
 
 */
-case class :*:[F,G](f:F,g:G) 
+  case class :*:[F,G](f:F,g:G) 
 
-trait FunctorProd[F[_],G[_]]{
-  type abs[A]= F[A]:*:G[A]
-}
+  trait FunctorProd[F[_],G[_]]{
+    type abs[A]= F[A]:*:G[A]
+  }
 
-implicit def fstar[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorProd[F,G]#abs]{
-  def fmap[A,B](fga:F[A]:*:G[A])(f: A => B):F[B]:*:G[B]= :*:(ff.fmap(fga.f)(f),fg.fmap(fga.g)(f))
-}
+  implicit def fstar[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[FunctorProd[F,G]#abs]{
+    def fmap[A,B](fga:F[A]:*:G[A])(f: A => B):F[B]:*:G[B]= :*:(ff.fmap(fga.f)(f),fg.fmap(fga.g)(f))
+  }
 
 /*
 -- | Composicion de functores
@@ -128,11 +128,11 @@ newtype (f :@: g) r = Comp {unComp :: f (g r)}
 instance (Functor f, Functor g) => Functor (f :@: g) where
   fmap f r = Comp $ fmap (fmap f) $ unComp r
 */
-case class Comp[F[_],G[_],Z](unComp:F[G[Z]])  
+  case class Comp[F[_],G[_],Z](unComp:F[G[Z]])  
 
-implicit def fcomp[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
-  def fmap[A,B](fga:Comp[F,G,A])(f: A => B):Comp[F,G,B]= Comp(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
-}
+  implicit def fcomp[F[_]:Functor, G[_]:Functor](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=Comp[F,G,A]})#abs]{
+    def fmap[A,B](fga:Comp[F,G,A])(f: A => B):Comp[F,G,B]= Comp(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
+  }
 
 
 /*
@@ -154,20 +154,13 @@ class Regular a where
    from :: a -> (PF a) a
    to   :: (PF a) a -> a
 */
-/*
-trait PF[T]{
-  //todo: type constructor
-  type F
-  def apply(t:T):F
-  def apply(pf:F):T
-}
-*/
-trait Regular[T]{
-  type PF[_] //must be functor
-  val ff:Functor[PF] 
-  def from(t:T):PF[T]
-  def to(pf:PF[T]):T
-}
+
+  trait Regular[T]{
+    type PF[_]
+    val ff:Functor[PF] 
+    def from(t:T):PF[T]
+    def to(pf:PF[T]):T
+  }
 
 /*
 -- | Ejemplo: Veamos la definicion del tipo TreeInt (arboles binarios de enteros)
@@ -176,9 +169,9 @@ trait Regular[T]{
 data TreeInt = LeafI Int | NodeI TreeInt TreeInt
   deriving Show
 */
-trait TreeInt{}
-case class LeafI(i:Int) extends TreeInt
-case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
+  trait TreeInt{}
+  case class LeafI(i:Int) extends TreeInt
+  case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 /*
 -- | La definicion del functor base de TreeInt se hace mediante la introduccion
 -- | de una instancia de la familia PF.
@@ -279,45 +272,40 @@ class Regular a where
    from :: a -> (PF a) a
    to   :: (PF a) a -> a
 
-
 fmap :: (a -> b) -> (f a -> f b)   
 
 */
-def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A=
-  h(r.ff.fmap(r.from(d))(fold(_)(h)))
-
-
-/*
--- | Ejemplos
-
-sumTreeInt :: TreeInt -> Int
-sumTreeInt = fold h
-  where
-    h (L (K n))         = n
-    h (R (I x :*: I y)) = x + y
-
-sumList :: Num a => List a -> a
-sumList = fold h
-  where
-    h (L U)             = 0
-    h (R (K n :*: I m)) = n + m
-  */
+  def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A=
+    h(r.ff.fmap(r.from(d))(fold(_)(h)))
 
   def sum[Z]:Regular[Z]#PF[Int]=>Int = {
-      case U() => 0
-      case k:K[Int,Z] @unchecked=> k.unK
-      case i:I[Int] @unchecked=> i.unI     
-      case l:L[Regular[Z]#PF[Int],_] @unchecked => sum(l.f)
-      case r:R[_,Regular[Z]#PF[Int]] @unchecked => sum(r.g)
-      case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => sum(star.f)+sum(star.g)
-      case c:Comp[_,_,_] => 0 // ??
-    }
+    case U() => 0
+    case k:K[Int,Z] @unchecked=> k.unK
+    case i:I[Int] @unchecked=> i.unI
+    case l:L[Regular[Z]#PF[Int],_] @unchecked => sum(l.f)
+    case r:R[_,Regular[Z]#PF[Int]] @unchecked => sum(r.g)
+    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => sum(star.f)+sum(star.g)
+    case c:Comp[_,_,_] => 0 // ??
+  }
  
   val t:TreeInt=NodeI(LeafI(1),LeafI(2))
 
-  val l=List(1,2)
+  val l=List(1,2,3,4)
 
+  println("sum of tree int = " + fold(t)(sum))
+  println("sum of list int = " + fold(l)(sum))
 
-  println(fold(t)(sum))
-  println(fold(l)(sum))
+  def count[Z]:Regular[Z]#PF[_]=>Int = {
+      case U() => 0
+      case k:K[_,Z] @unchecked=> 1
+      case i:I[Int] @unchecked=> i.unI 
+      case l:L[Regular[Z]#PF[_],_] @unchecked => count(l.f)
+      case r:R[_,Regular[Z]#PF[_]] @unchecked => count(r.g)
+      case star:(Regular[Z]#PF[_]:*:Regular[Z]#PF[_]) @unchecked => count(star.f)+count(star.g)
+      case c:Comp[_,_,_] => 0 // ??
+    }
+
+  println("count of tree int = " + fold(t)(count))
+  println("count of list A = " + fold(l)(count))
+
 }
