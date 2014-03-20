@@ -3,7 +3,7 @@ package reggen
 import Functors._
 
 /**
-  Some simple data types and corresponding regular conversions
+  Some simple data types and corresponding regular typeclasses
 */
 object SampleRegularDatatypes{
 
@@ -55,7 +55,7 @@ object SampleRegularDatatypes{
   }
 
 
-  //parametrized bianry tree
+  //parametrized binary tree
   trait Tree[A]{}
   case class Leaf[A](i:A) extends Tree[A]
   case class Node[A](l:Tree[A],r:Tree[A]) extends Tree[A]
@@ -63,7 +63,7 @@ object SampleRegularDatatypes{
 
   implicit def regularTree[A]:Regular[Tree[A]]=new Regular[Tree[A]]{
 
-    //type PF[Z] = K[Int,Z]:+:(I[Z]:*:I[Z])
+    //type PF[Z] = K[A,Z]:+:(I[Z]:*:I[Z])
     type PFL[Z] = K[A,Z]
     type PFR[Z] = (I[Z]:*:I[Z])
     type PF[Z]=PFL[Z]:+:PFR[Z]
