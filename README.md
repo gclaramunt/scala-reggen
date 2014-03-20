@@ -9,6 +9,6 @@ e.g.
 
 List\[A\] ( Nil | Cons (a:A, l:List\[A\]) ) is represented as 1 + K A * I
 
-Tree\[A\] (Leaf(a:A) |  Node(l:Tree\[A\],r:Tree\[A\])) is represented as K + I * I
+Tree\[A\] (Leaf(a:A) |  Node(l:Tree\[A\],r:Tree\[A\])) is represented as K A + I * I
 
 In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/shapeless) this library should be eventually called "Useless"
