@@ -1,0 +1,54 @@
+package reggen
+
+import Functors._
+import GenericFold._
+import SampleRegularDatatypes._
+
+object SampleGenericCode extends App {
+
+  val ti:TreeInt=NodeI(LeafI(1),LeafI(2))
+  val tp:Tree[Int]=Node(Leaf(1),Leaf(2))
+  val l=List(1,2,3,4)
+
+  def sum[Z]:Regular[Z]#PF[Int]=>Int = {
+    case U() => 0
+    case k:K[Int,Z] @unchecked=> k.unK
+    case i:I[Int] @unchecked=> i.unI
+    case l:L[Regular[Z]#PF[Int],_] @unchecked => sum(l.f)
+    case r:R[_,Regular[Z]#PF[Int]] @unchecked => sum(r.g)
+    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => sum(star.f)+sum(star.g)
+    case c:Comp[_,_,_] => 0 // ??
+  }
+ 
+  def count[Z]:Regular[Z]#PF[_]=>Int = {
+      case U() => 0
+      case k:K[_,Z] @unchecked=> 1
+      case i:I[Int] @unchecked=> i.unI 
+      case l:L[Regular[Z]#PF[_],_] @unchecked => count(l.f)
+      case r:R[_,Regular[Z]#PF[_]] @unchecked => count(r.g)
+      case star:(Regular[Z]#PF[_]:*:Regular[Z]#PF[_]) @unchecked => count(star.f)+count(star.g)
+      case c:Comp[_,_,_] => 0 // ??
+    }
+  
+  def max[Z]:Regular[Z]#PF[Int]=>Int = {
+      case U() => 0
+      case k:K[Int,Z] @unchecked=> k.unK
+      case i:I[Int] @unchecked=> i.unI 
+      case l:L[Regular[Z]#PF[Int],_] @unchecked => max(l.f)
+      case r:R[_,Regular[Z]#PF[Int]] @unchecked => max(r.g)
+      case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => Math.max(max(star.f),max(star.g))
+      case c:Comp[_,_,_] => 0 // ??
+    }
+
+  println("sum of TreeInt = " + fold(ti)(sum))
+  println("sum of Tree[Int] = " + fold(tp)(sum))
+  println("sum of List[Int] = " + fold(l)(sum))
+
+  println("count of TreeInt = " + fold(ti)(count))
+  println("count of Tree[Int] = " + fold(tp)(count))
+  println("count of List[Int] = " + fold(l)(count))
+
+  println("max of TreeInt = " + fold(ti)(max))
+  println("max of Tree[Int] = " + fold(tp)(max))
+  println("max of List[Int] = " + fold(l)(max))
+}
