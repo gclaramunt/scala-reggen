@@ -36,15 +36,69 @@
 
 <p>Generic programming experiment in Scala</p>
 
-<p>A category theory based approach to generic programming, based on a pattern functor description of the type and defining a behavior for each regular functor class.</p>
+<p>A category theory based approach to generic programming, where each datatype is described by a functor polynomial and defining a function used to fold each regular functor class.</p>
 
 <p>e.g.</p>
 
 <p>List[A] ( Nil | Cons (a:A, l:List[A]) ) is represented as 1 + K A * I</p>
 
-<p>Tree[A] (Leaf(a:A) |  Node(l:Tree[A],r:Tree[A])) is represented as K + I * I</p>
+<p>Tree[A] (Leaf(a:A) |  Node(l:Tree[A],r:Tree[A])) is represented as K A + I * I</p>
 
 <p>In homage to Miles Sabin's awesome <a href="https://github.com/milessabin/shapeless">Shapeless</a> this library should be eventually called "Useless"</p>
+
+<h2>
+<a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h2>
+
+<h3>
+<a name="a-100-mph-tour-into-category-theory-land" class="anchor" href="#a-100-mph-tour-into-category-theory-land"><span class="octicon octicon-link"></span></a>A 100 mph tour into Category theory land</h3>
+
+<p>This library uses category theory as the basis for its machinery, so to understand how it works, we need some theory.</p>
+
+<p><a href="http://alissapajer.github.io/conferenceslides/craftconf2014/#/">Alissa Pajer</a> does a way better job than me</p>
+
+<h3>
+<a name="categories" class="anchor" href="#categories"><span class="octicon octicon-link"></span></a>Categories</h3>
+
+<p>A category is a collection of objects and arrows between them with identity and composition.
+More formally:</p>
+
+<p>Obj(Cat): collection of objects.
+For each A,B ∈ Obj(Cat), there’s a set C(A,B) of morphisms (arrows) from A to B
+f:A→B means f ∈ C(A,B)</p>
+
+<p>Composition operation between arrows:
+if f:A→B and g:B→C, then g∘f:A→C
+Must be associative: f∘(g∘h) = (f∘g)∘h</p>
+
+<p>For each object X, exists an identity arrow IdX:X→X, such as IdB∘f=f∘IdA=f for each f:A→B</p>
+
+<p>In other words, to effectively form a Category, the chosen arrow composition must be associative and it must be a unique identity</p>
+
+<h3>
+<a name="functors" class="anchor" href="#functors"><span class="octicon octicon-link"></span></a>Functors</h3>
+
+<p>A functor from cat. C to cat. D is a pair of functions one maps objects of C to D and the other maps arrows of C to D
+functor F:C→D, A ∈C⇒FA∈D, f ∈C⇒Ff∈D</p>
+
+<p>A functor must satisfy the following laws:
+Ff:FA→FB
+F(f∘g)=Ff∘Fg
+FidA=idFA</p>
+
+<h3>
+<a name="folds" class="anchor" href="#folds"><span class="octicon octicon-link"></span></a>Folds</h3>
+
+<p>TBD</p>
+
+<p>(TO BE DONE:)</p>
+
+<p>(how types and functions are a category)</p>
+
+<p>(how type constructors )</p>
+
+<p>(how types can be described as an algebra of functors)</p>
+
+<p>(how fold is the unversal operation)</p>
       </section>
     </div>
 
