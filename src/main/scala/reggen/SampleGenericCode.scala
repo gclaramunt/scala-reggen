@@ -66,15 +66,28 @@ object SampleGenericCode extends App {
   println
 
   def serialize[Z]:Regular[Z]#PF[_]=>String = {
-      case U() => "nil"
+      case U() => ""
       case k:K[_,Z] @unchecked=> k.unK.toString
       case i:I[String] @unchecked=> i.unI
-      case l:L[Regular[Z]#PF[Int],_] @unchecked => serialize(l.f)
-      case r:R[_,Regular[Z]#PF[Int]] @unchecked => serialize(r.g)
-      case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => serialize(star.f)+","+serialize(star.g)
+      case l:L[Regular[Z]#PF[String],_] @unchecked => serialize(l.f)
+      case r:R[_,Regular[Z]#PF[String]] @unchecked => serialize(r.g)
+      case star:(Regular[Z]#PF[String]:*:Regular[Z]#PF[String]) @unchecked => serialize(star.f)+","+serialize(star.g)
     }
   println("serialize of TreeInt = " + fold(ti)(serialize))
   println("serialize of Tree[Int] = " + fold(tp)(serialize))
   println("serialize of List[Int] = " + fold(l)(serialize))
   
+  def forall[E,Z](q:E=>Boolean):Regular[Z]#PF[_]=>Boolean= {
+      case U() => true
+      case k:K[E,Z] @unchecked=> q(k.unK)
+      case i:I[Boolean] @unchecked=> i.unI
+      case l:L[Regular[Z]#PF[_],_] @unchecked => forall(q)(l.f)
+      case r:R[_,Regular[Z]#PF[_]] @unchecked => forall(q)(r.g)
+      case star:(Regular[Z]#PF[_]:*:Regular[Z]#PF[_]) @unchecked => forall(q)(star.f) && forall(q)(star.g)
+    }
+
+  def gtZero(x:Int)=x>0
+  println("forall(_>0) of TreeInt = " + fold(ti)(forall( gtZero)))
+  println("forall(_>0) of Tree[Int] = " + fold(tp)(forall( gtZero)))
+  println("forall(_>0) of List[Int] = " + fold(l)(forall( gtZero)))
 }
