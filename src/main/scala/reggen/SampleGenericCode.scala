@@ -23,13 +23,13 @@ object SampleGenericCode extends App {
   println("sum of List[Int] = " + fold(l)(sum))
   println
 
-  def count[Z]:Regular[Z]#PF[_]=>Int = {
+  def count[Z]:Regular[Z]#PF[Int]=>Int = {
       case U() => 0
-      case k:K[_,Z] @unchecked=> 1
+      case k:K[Int,Z] @unchecked=> 1
       case i:I[Int] @unchecked=> i.unI 
-      case l:L[Regular[Z]#PF[_],_] @unchecked => count(l.f)
-      case r:R[_,Regular[Z]#PF[_]] @unchecked => count(r.g)
-      case star:(Regular[Z]#PF[_]:*:Regular[Z]#PF[_]) @unchecked => count(star.f)+count(star.g)
+      case l:L[Regular[Z]#PF[Int],_] @unchecked => count(l.f)
+      case r:R[_,Regular[Z]#PF[Int]] @unchecked => count(r.g)
+      case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => count(star.f)+count(star.g)
       //case c:Comp[_,_,_] => 0 
     }
   println("count of TreeInt = " + fold(ti)(count))
