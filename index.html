@@ -54,7 +54,9 @@
 
 <p>This library uses category theory as the basis for its machinery, so to understand how it works, we need some theory.</p>
 
-<p><a href="http://alissapajer.github.io/conferenceslides/craftconf2014/#/">Alissa Pajer</a> does a way better job than me</p>
+<p>NOTE: This is a quick and misinformed pass, the theory behind this is explained in <a href="http://www.fing.edu.uy/inco/cursos/proggen/Papers/FGP.pdf.gz">Pardo, Alberto - Fundamentals of Generic Programming</a></p>
+
+<p><a href="http://alissapajer.github.io/conferenceslides/craftconf2014/#/">Alissa Pajer</a> does a great job at introducing the basic concepts</p>
 
 <h3>
 <a name="categories" class="anchor" href="#categories"><span class="octicon octicon-link"></span></a>Categories</h3>
@@ -72,7 +74,7 @@ Must be associative: f∘(g∘h) = (f∘g)∘h</p>
 
 <p>For each object X, exists an identity arrow IdX:X→X, such as IdB∘f=f∘IdA=f for each f:A→B</p>
 
-<p>In other words, to effectively form a Category, the chosen arrow composition must be associative and it must be a unique identity</p>
+<p>In other words, to effectively form a Category, the choosen arrow composition must be associative and itmust be a unique </p>
 
 <h3>
 <a name="functors" class="anchor" href="#functors"><span class="octicon octicon-link"></span></a>Functors</h3>
@@ -88,17 +90,14 @@ FidA=idFA</p>
 <h3>
 <a name="folds" class="anchor" href="#folds"><span class="octicon octicon-link"></span></a>Folds</h3>
 
-<p>TBD</p>
+<p>(define fold?)
+  (laws)</p>
 
-<p>(TO BE DONE:)</p>
-
-<p>(how types and functions are a category)</p>
-
-<p>(how type constructors )</p>
-
-<p>(how types can be described as an algebra of functors)</p>
-
-<p>(how fold is the unversal operation)</p>
+<p>(TO BE DONE:)
+(how types and functions are a category)
+(how type constructors )
+(how types can be described as an algebra of functors)
+(how fold is the unversal operation)</p>
       </section>
     </div>
 
