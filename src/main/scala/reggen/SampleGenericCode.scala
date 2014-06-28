@@ -66,13 +66,13 @@ object SampleGenericCode extends App {
   println
 
 /*
-  def serialize[Z]:Regular[Z]#PF[Int]=>String = {
-      case U() => "<nil>"
-      case k:K[Int,Z] @unchecked=> k.unK.toString
-      case i:I[Int] @unchecked=> i.unI.toString
-      case l:L[Regular[Z]#PF[Int],_] @unchecked => serialize(l.f)
-      case r:R[_,Regular[Z]#PF[Int]] @unchecked => serialize(r.g)
-      case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => serialize(star.f)+","+serialize(star.g)
+  def serialize[Z]:Regular[Z]#PF[_]=>String = {
+      case U() => ""
+      case k:K[_,Z] @unchecked=> k.unK.toString
+      case i:I[String] @unchecked=> i.unI
+      case l:L[Regular[Z]#PF[String],_] @unchecked => serialize(l.f)
+      case r:R[_,Regular[Z]#PF[String]] @unchecked => serialize(r.g)
+      case star:(Regular[Z]#PF[String]:*:Regular[Z]#PF[String]) @unchecked => serialize(star.f)+","+serialize(star.g)
     }
   println("serialize of TreeInt = " + fold(ti)(serialize))
   println("serialize of Tree[Int] = " + fold(tp)(serialize))

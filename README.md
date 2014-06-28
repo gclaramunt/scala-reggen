@@ -15,12 +15,15 @@ Tree\[A\] (Leaf(a:A) |  Node(l:Tree\[A\],r:Tree\[A\])) is represented as K A + I
 
 In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/shapeless) this library should be eventually called "Useless"
 
+
+
 Background
 ----------
 
 ### A 100 mph tour into Category theory land
 
 This library uses category theory as the basis for its machinery, so to understand how it works, we need some theory.
+NOTE: This is a quick and missinformed pass, the theory behind this is explained in [Pardo, Alberto - Fundamentals of Generic Programming](http://www.fing.edu.uy/inco/cursos/proggen/Papers/FGP.pdf.gz)
 
 [Alissa Pajer](http://alissapajer.github.io/conferenceslides/craftconf2014/#/) does a way better job than me
 
