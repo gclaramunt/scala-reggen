@@ -23,9 +23,10 @@ Background
 ### A 100 mph tour into Category theory land
 
 This library uses category theory as the basis for its machinery, so to understand how it works, we need some theory.
-NOTE: This is a quick and missinformed pass, the theory behind this is explained in [Pardo, Alberto - Fundamentals of Generic Programming](http://www.fing.edu.uy/inco/cursos/proggen/Papers/FGP.pdf.gz)
 
-[Alissa Pajer](http://alissapajer.github.io/conferenceslides/craftconf2014/#/) does a way better job than me
+NOTE: This is a quick and far from rigorous pass, the theory behind this is explained in [Pardo, Alberto - Fundamentals of Generic Programming](http://www.fing.edu.uy/inco/cursos/proggen/Papers/FGP.pdf.gz)
+
+[Alissa Pajer](http://alissapajer.github.io/conferenceslides/craftconf2014/#/) does a great introduction to the basic concepts and how they relate to programming
 
 ### Categories
 A category is a collection of objects and arrows between them with identity and composition.
