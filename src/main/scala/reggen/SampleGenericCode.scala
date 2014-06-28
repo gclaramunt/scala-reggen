@@ -65,10 +65,11 @@ object SampleGenericCode extends App {
   println("flatten of List[Int] = " + fold(l)(flatten))
   println
 
-  def serialize[Z]:Regular[Z]#PF[_]=>String = {
-      case U() => "nil"
-      case k:K[_,Z] @unchecked=> k.unK.toString
-      case i:I[String] @unchecked=> i.unI
+/*
+  def serialize[Z]:Regular[Z]#PF[Int]=>String = {
+      case U() => "<nil>"
+      case k:K[Int,Z] @unchecked=> k.unK.toString
+      case i:I[Int] @unchecked=> i.unI.toString
       case l:L[Regular[Z]#PF[Int],_] @unchecked => serialize(l.f)
       case r:R[_,Regular[Z]#PF[Int]] @unchecked => serialize(r.g)
       case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked => serialize(star.f)+","+serialize(star.g)
@@ -76,5 +77,35 @@ object SampleGenericCode extends App {
   println("serialize of TreeInt = " + fold(ti)(serialize))
   println("serialize of Tree[Int] = " + fold(tp)(serialize))
   println("serialize of List[Int] = " + fold(l)(serialize))
-  
+  */
+
+  val tpbool:Tree[Boolean]=Node(Leaf(true),Leaf(false))
+  val lbool=List(true,true, false, true)
+
+  def all[Z]:Regular[Z]#PF[Boolean]=>Boolean = {
+      case U() => true
+      case k:K[Boolean,Z] @unchecked=> k.unK
+      case i:I[Boolean] @unchecked=> i.unI 
+      case l:L[Regular[Z]#PF[Boolean],_] @unchecked =>  all(l.f)
+      case r:R[_,Regular[Z]#PF[Boolean]] @unchecked => all(r.g)
+      case star:(Regular[Z]#PF[Boolean]:*:Regular[Z]#PF[Boolean]) @unchecked => all(star.f) && all(star.g)
+      //case c:Comp[_,_,_] => Nil 
+    }  
+
+  def exists[Z]:Regular[Z]#PF[Boolean]=>Boolean = {
+      case U() => false
+      case k:K[Boolean,Z] @unchecked=> k.unK
+      case i:I[Boolean] @unchecked=> i.unI 
+      case l:L[Regular[Z]#PF[Boolean],_] @unchecked =>  exists(l.f)
+      case r:R[_,Regular[Z]#PF[Boolean]] @unchecked => exists(r.g)
+      case star:(Regular[Z]#PF[Boolean]:*:Regular[Z]#PF[Boolean]) @unchecked => exists(star.f) || exists(star.g)
+      //case c:Comp[_,_,_] => Nil 
+    }
+
+  println("all tpbool = " + fold(tpbool)(all))
+  println("exists tpbool = " + fold(tpbool)(exists))
+
+  println("all lbool = " + fold(lbool)(all))
+  println("exists lbool = " + fold(lbool)(exists))
+
 }
