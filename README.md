@@ -5,15 +5,19 @@ Generic programming experiment in Scala
 
 A category theory based approach to generic programming, where each datatype is described by a functor polynomial and defining a function used to fold each regular functor class.
 
+In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/shapeless) this library should be eventually called "Useless"
+
+TL;DR
+-----
+Since a fold can be interpreted as replacing a type's constructors with functions and any type can be described with an algebra of functors, by defining our functions over the elements of the algebra, we can write programs that are independent of the shape of the datatype. 
+
+
 e.g.
 
 List\[A\] ( Nil | Cons (a:A, l:List\[A\]) ) is represented as 1 + K A * I
 
 Tree\[A\] (Leaf(a:A) |  Node(l:Tree\[A\],r:Tree\[A\])) is represented as K A + I * I
 
-
-
-In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/shapeless) this library should be eventually called "Useless"
 
 
 
