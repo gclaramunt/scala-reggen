@@ -57,14 +57,16 @@ Ff:FA→FB
 F(f∘g)=Ff∘Fg
 FidA=idFA
 
-### Folds
-
-(define fold?)
-  (laws)
-
-
 (TO BE DONE:)
+
+### Initial Algebras
 (how types and functions are a category)
 (how type constructors )
 (how types can be described as an algebra of functors)
+
+### Folds
+
+(define fold)
+  (laws)
+
 (how fold is the unversal operation)
