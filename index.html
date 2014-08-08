@@ -2,9 +2,9 @@
 <html>
 
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Scala-reggen : Generic programming experiment in Scala" />
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Scala-reggen : Generic programming experiment in Scala">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -38,13 +38,18 @@
 
 <p>A category theory based approach to generic programming, where each datatype is described by a functor polynomial and defining a function used to fold each regular functor class.</p>
 
+<p>In homage to Miles Sabin's awesome <a href="https://github.com/milessabin/shapeless">Shapeless</a> this library should be eventually called "Useless"</p>
+
+<h2>
+<a name="tldr" class="anchor" href="#tldr"><span class="octicon octicon-link"></span></a>TL;DR</h2>
+
+<p>Since a fold can be interpreted as replacing a type's constructors with functions and any type can be described with an algebra of functors, by defining our functions over the elements of the algebra, we can write programs that are independent of the shape of the datatype. </p>
+
 <p>e.g.</p>
 
 <p>List[A] ( Nil | Cons (a:A, l:List[A]) ) is represented as 1 + K A * I</p>
 
 <p>Tree[A] (Leaf(a:A) |  Node(l:Tree[A],r:Tree[A])) is represented as K A + I * I</p>
-
-<p>In homage to Miles Sabin's awesome <a href="https://github.com/milessabin/shapeless">Shapeless</a> this library should be eventually called "Useless"</p>
 
 <h2>
 <a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h2>
@@ -54,9 +59,9 @@
 
 <p>This library uses category theory as the basis for its machinery, so to understand how it works, we need some theory.</p>
 
-<p>NOTE: This is a quick and misinformed pass, the theory behind this is explained in <a href="http://www.fing.edu.uy/inco/cursos/proggen/Papers/FGP.pdf.gz">Pardo, Alberto - Fundamentals of Generic Programming</a></p>
+<p>NOTE: This is a quick and far from rigorous pass, the theory behind this is explained in <a href="http://www.fing.edu.uy/inco/cursos/proggen/Papers/FGP.pdf.gz">Pardo, Alberto - Fundamentals of Generic Programming</a></p>
 
-<p><a href="http://alissapajer.github.io/conferenceslides/craftconf2014/#/">Alissa Pajer</a> does a great job at introducing the basic concepts</p>
+<p><a href="http://alissapajer.github.io/conferenceslides/craftconf2014/#/">Alissa Pajer</a> does a great introduction to the basic concepts and how they relate to programming</p>
 
 <h3>
 <a name="categories" class="anchor" href="#categories"><span class="octicon octicon-link"></span></a>Categories</h3>
@@ -87,17 +92,22 @@ Ff:FA→FB
 F(f∘g)=Ff∘Fg
 FidA=idFA</p>
 
+<p>(TO BE DONE:)</p>
+
+<h3>
+<a name="initial-algebras" class="anchor" href="#initial-algebras"><span class="octicon octicon-link"></span></a>Initial Algebras</h3>
+
+<p>(how types and functions are a category)
+(how type constructors )
+(how types can be described as an algebra of functors)</p>
+
 <h3>
 <a name="folds" class="anchor" href="#folds"><span class="octicon octicon-link"></span></a>Folds</h3>
 
-<p>(define fold?)
+<p>(define fold)
   (laws)</p>
 
-<p>(TO BE DONE:)
-(how types and functions are a category)
-(how type constructors )
-(how types can be described as an algebra of functors)
-(how fold is the unversal operation)</p>
+<p>(how fold is the unversal operation)</p>
       </section>
     </div>
 
@@ -109,7 +119,17 @@ FidA=idFA</p>
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-1731182-3");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
