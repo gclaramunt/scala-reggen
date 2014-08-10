@@ -9,7 +9,8 @@ In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/sha
 
 Sample code
 -----------
-
+(from [SampleGenericCode.scala](./blob/master/src/main/scala/reggen/SampleGenericCode.scala)
+```
 object SampleGenericCode extends App {
 
   val ti:TreeInt=NodeI(LeafI(1),LeafI(2))
@@ -30,6 +31,7 @@ object SampleGenericCode extends App {
   println("sum of List[Int] = " + fold(l)(sum))
 
 }
+```
 
 TL;DR
 -----
