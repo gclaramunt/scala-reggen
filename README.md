@@ -7,17 +7,42 @@ A category theory based approach to generic programming, where each datatype is 
 
 In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/shapeless) this library should be eventually called "Useless"
 
+Sample code
+-----------
+
+object SampleGenericCode extends App {
+
+  val ti:TreeInt=NodeI(LeafI(1),LeafI(2))
+  val tp:Tree[Int]=Node(Leaf(1),Leaf(2))
+  val l=List(1,2,3,4)
+
+  def sum[Z]:Regular[Z]#PF[Int]=>Int = {
+    case U() => 0
+    case k:K[Int,Z] => k.unK
+    case i:I[Int] => i.unI
+    case l:L[Regular[Z]#PF[Int],_]  => sum(l.f)
+    case r:R[_,Regular[Z]#PF[Int]]  => sum(r.g)
+    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int])  => sum(star.f)+sum(star.g)
+  }
+  
+  println("sum of TreeInt = " + fold(ti)(sum))
+  println("sum of Tree[Int] = " + fold(tp)(sum))
+  println("sum of List[Int] = " + fold(l)(sum))
+
+}
+
 TL;DR
 -----
 Since a fold can be interpreted as replacing a type's constructors with functions and any type can be described with an algebra of functors, by defining our functions over the elements of the algebra, we can write programs that are independent of the shape of the datatype. 
 
-
+ 
 e.g.
 
 List\[A\] ( Nil | Cons (a:A, l:List\[A\]) ) is represented as 1 + K A * I
 
 Tree\[A\] (Leaf(a:A) |  Node(l:Tree\[A\],r:Tree\[A\])) is represented as K A + I * I
 
+Then a generic fold just takes a function that pattern matches over the components of the functors
 
 
 
