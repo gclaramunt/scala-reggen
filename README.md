@@ -9,7 +9,7 @@ In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/sha
 
 Sample code
 -----------
-(from [SampleGenericCode.scala](./blob/master/src/main/scala/reggen/SampleGenericCode.scala)
+( from [SampleGenericCode.scala](./blob/master/src/main/scala/reggen/SampleGenericCode.scala) )  
 ```
 object SampleGenericCode extends App {
 
@@ -36,7 +36,8 @@ object SampleGenericCode extends App {
 TL;DR
 -----
 Since a fold can be interpreted as replacing a type's constructors with functions and any type can be described with an algebra of functors, by defining our functions over the elements of the algebra, we can write programs that are independent of the shape of the datatype. 
-
+Our algebra of functors consists of:
+1 (unit), K (constant), I (identity), * (product), + (sum)
  
 e.g.
 
@@ -44,9 +45,17 @@ List\[A\] ( Nil | Cons (a:A, l:List\[A\]) ) is represented as 1 + K A * I
 
 Tree\[A\] (Leaf(a:A) |  Node(l:Tree\[A\],r:Tree\[A\])) is represented as K A + I * I
 
-Then a generic fold just takes a function that pattern matches over the components of the functors
+Then a generic fold just takes a function that pattern matches over the components of the functors.
 
-
+e.g. for the sum:
+```
+  sum :: F a -> int
+  sum 1 = 0
+  sum K a = a
+  sum (inl x) = sum x -- left injection of sum
+  sum (inr x) = sum x -- right injection of sum
+  sum (x * y) = sum x + sum y
+```
 
 Background
 ----------
@@ -60,12 +69,13 @@ NOTE: This is a quick and far from rigorous pass, the theory behind this is expl
 [Alissa Pajer](http://alissapajer.github.io/conferenceslides/craftconf2014/#/) does a great introduction to the basic concepts and how they relate to programming
 
 ### Categories
-A category is a collection of objects and arrows between them with identity and composition.
-More formally:
+A category is a collection of objects and arrows between them with identity and composition:
 
 Obj(Cat): collection of objects.
 For each A,B ∈ Obj(Cat), there’s a set C(A,B) of morphisms (arrows) from A to B
 f:A→B means f ∈ C(A,B)
+
+(Formally, a category is defined by 3 total functions: source, target, id;  and one partial function: composition)
 
 Composition operation between arrows:
 if f:A→B and g:B→C, then g∘f:A→C
@@ -73,7 +83,7 @@ Must be associative: f∘(g∘h) = (f∘g)∘h
 
 For each object X, exists an identity arrow IdX:X→X, such as IdB∘f=f∘IdA=f for each f:A→B
 
-In other words, to effectively form a Category, the choosen arrow composition must be associative and itmust be a unique 
+In other words, to effectively form a Category, the choosen arrow composition must be associative and it must be unique 
 
 ### Functors
 A functor from cat. C to cat. D is a pair of functions one maps objects of C to D and the other maps arrows of C to D
