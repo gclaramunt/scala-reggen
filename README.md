@@ -52,9 +52,9 @@ e.g. for the sum:
   sum :: F a -> int
   sum 1 = 0
   sum K a = a
-  sum (inl x) = sum x -- left injection of sum
-  sum (inr x) = sum x -- right injection of sum
-  sum (x * y) = sum x + sum y
+  sum (inl x) = sum x -- left injection of (functor's) +
+  sum (inr x) = sum x -- right injection of (functor's) +
+  sum (x * y) = sum x + sum y 
 ```
 
 Background
