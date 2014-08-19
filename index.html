@@ -41,15 +41,56 @@
 <p>In homage to Miles Sabin's awesome <a href="https://github.com/milessabin/shapeless">Shapeless</a> this library should be eventually called "Useless"</p>
 
 <h2>
+<a name="sample-code" class="anchor" href="#sample-code"><span class="octicon octicon-link"></span></a>Sample code</h2>
+
+<p>( from <a href="./blob/master/src/main/scala/reggen/SampleGenericCode.scala">SampleGenericCode.scala</a> )  </p>
+
+<pre><code>object SampleGenericCode extends App {
+
+  val ti:TreeInt=NodeI(LeafI(1),LeafI(2))
+  val tp:Tree[Int]=Node(Leaf(1),Leaf(2))
+  val l=List(1,2,3,4)
+
+  def sum[Z]:Regular[Z]#PF[Int]=&gt;Int = {
+    case U() =&gt; 0
+    case k:K[Int,Z] =&gt; k.unK
+    case i:I[Int] =&gt; i.unI
+    case l:L[Regular[Z]#PF[Int],_]  =&gt; sum(l.f)
+    case r:R[_,Regular[Z]#PF[Int]]  =&gt; sum(r.g)
+    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int])  =&gt; sum(star.f)+sum(star.g)
+  }
+
+  println("sum of TreeInt = " + fold(ti)(sum))
+  println("sum of Tree[Int] = " + fold(tp)(sum))
+  println("sum of List[Int] = " + fold(l)(sum))
+
+}
+</code></pre>
+
+<h2>
 <a name="tldr" class="anchor" href="#tldr"><span class="octicon octicon-link"></span></a>TL;DR</h2>
 
-<p>Since a fold can be interpreted as replacing a type's constructors with functions and any type can be described with an algebra of functors, by defining our functions over the elements of the algebra, we can write programs that are independent of the shape of the datatype. </p>
+<p>Since a fold can be interpreted as replacing a type's constructors with functions and any type can be described with an algebra of functors, by defining our functions over the elements of the algebra, we can write programs that are independent of the shape of the datatype. 
+Our algebra of functors consists of:
+1 (unit), K (constant), I (identity), * (product), + (sum)</p>
 
 <p>e.g.</p>
 
 <p>List[A] ( Nil | Cons (a:A, l:List[A]) ) is represented as 1 + K A * I</p>
 
 <p>Tree[A] (Leaf(a:A) |  Node(l:Tree[A],r:Tree[A])) is represented as K A + I * I</p>
+
+<p>Then a generic fold just takes a function that pattern matches over the components of the functors.</p>
+
+<p>e.g. for the sum:</p>
+
+<pre><code>  sum :: F a -&gt; int
+  sum 1 = 0
+  sum K a = a
+  sum (inl x) = sum x -- left injection (of functor's) +
+  sum (inr x) = sum x -- right injection (of functor's) +
+  sum (x * y) = sum x + sum y 
+</code></pre>
 
 <h2>
 <a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h2>
@@ -66,12 +107,13 @@
 <h3>
 <a name="categories" class="anchor" href="#categories"><span class="octicon octicon-link"></span></a>Categories</h3>
 
-<p>A category is a collection of objects and arrows between them with identity and composition.
-More formally:</p>
+<p>A category is a collection of objects and arrows between them with identity and composition:</p>
 
 <p>Obj(Cat): collection of objects.
 For each A,B ∈ Obj(Cat), there’s a set C(A,B) of morphisms (arrows) from A to B
 f:A→B means f ∈ C(A,B)</p>
+
+<p>(Formally, a category is defined by 3 total functions: source, target, id;  and one partial function: composition)</p>
 
 <p>Composition operation between arrows:
 if f:A→B and g:B→C, then g∘f:A→C
@@ -79,7 +121,7 @@ Must be associative: f∘(g∘h) = (f∘g)∘h</p>
 
 <p>For each object X, exists an identity arrow IdX:X→X, such as IdB∘f=f∘IdA=f for each f:A→B</p>
 
-<p>In other words, to effectively form a Category, the choosen arrow composition must be associative and itmust be a unique </p>
+<p>In other words, to effectively form a Category, the choosen arrow composition must be associative and it must be unique </p>
 
 <h3>
 <a name="functors" class="anchor" href="#functors"><span class="octicon octicon-link"></span></a>Functors</h3>
