@@ -9,7 +9,8 @@ In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/sha
 
 Sample code
 -----------
-( from [SampleGenericCode.scala](./blob/master/src/main/scala/reggen/SampleGenericCode.scala) )  
+from [SampleGenericCode.scala](./src/main/scala/reggen/SampleGenericCode.scala)
+
 ```
 object SampleGenericCode extends App {
 
@@ -97,13 +98,17 @@ FidA=idFA
 (TO BE DONE:)
 
 ### Initial Algebras
+
 (how types and functions are a category)
+
 (how type constructors )
+
 (how types can be described as an algebra of functors)
 
 ### Folds
 
 (define fold)
+
   (laws)
 
 (how fold is the unversal operation)
