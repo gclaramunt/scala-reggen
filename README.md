@@ -3,11 +3,11 @@ scala-reggen
 
 Generic programming experiment in Scala
 
-A category theory based approach to generic programming, where each datatype is described by a functor polynomial and defining a function used to fold each regular functor class.
-
-After all, a fold is originated by the unique homomorphism that exists between the initial algebra and any other algebra, what's the problem?
+A category theory based approach to generic programming, where each datatype is described by a functor polynomial and defining a function used to fold each regular functor class*.
 
 In homage to Miles Sabin's awesome [Shapeless](https://github.com/milessabin/shapeless) this library should be eventually called "Useless"
+
+*(After all, a fold is originated by the unique homomorphism that exists between the initial algebra and any other algebra, what's the problem?)
 
 Sample code
 -----------
