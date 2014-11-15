@@ -52,7 +52,7 @@ object SampleRegularDatatypes{
 	  case L(U()) => Nil
 	  case R(:*:(K(x),I(xs))) => x::xs
 	}
-  }
+}
 
 
   //parametrized binary tree

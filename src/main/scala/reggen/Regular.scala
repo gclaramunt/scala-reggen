@@ -22,10 +22,19 @@ trait Regular[T]{
 object GenericFold {
 
   /**
-     Generic fold
+    Generic fold
   */
-  //fold  :: (Regular d, Functor (PF d)) => (PF d a -> a) -> d -> a
-  def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A=
+  def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A =
     h(r.ff.fmap(r.from(d))(fold(_)(h)))
+
+  /**
+    Generic map
+  */
+  /*
+   NOT YET... NEEDS BIFUNCTOR
+  def pmap[A,B,D](d:D)(f:A=>B)(implicit r:Regular[D]):D = 
+    r.to( r.ff.fmap ( r.from(d) )(pmap(_)(f)))
+    */
+
 
 }
