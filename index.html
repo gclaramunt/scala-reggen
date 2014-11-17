@@ -32,16 +32,18 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a name="scala-reggen" class="anchor" href="#scala-reggen"><span class="octicon octicon-link"></span></a>scala-reggen</h1>
+<a id="scala-reggen" class="anchor" href="#scala-reggen" aria-hidden="true"><span class="octicon octicon-link"></span></a>scala-reggen</h1>
 
 <p>Generic programming experiment in Scala</p>
 
-<p>A category theory based approach to generic programming, where each datatype is described by a functor polynomial and defining a function used to fold each regular functor class.</p>
+<p>A category theory based approach to generic programming, where each datatype is described by a functor polynomial and defining a function used to fold each regular functor class*.</p>
 
 <p>In homage to Miles Sabin's awesome <a href="https://github.com/milessabin/shapeless">Shapeless</a> this library should be eventually called "Useless"</p>
 
+<p>*(After all, a fold is originated by the unique homomorphism that exists between the initial algebra and any other algebra, what's the problem?)</p>
+
 <h2>
-<a name="sample-code" class="anchor" href="#sample-code"><span class="octicon octicon-link"></span></a>Sample code</h2>
+<a id="sample-code" class="anchor" href="#sample-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample code</h2>
 
 <p>from <a href="./src/main/scala/reggen/SampleGenericCode.scala">SampleGenericCode.scala</a></p>
 
@@ -68,7 +70,7 @@
 </code></pre>
 
 <h2>
-<a name="tldr" class="anchor" href="#tldr"><span class="octicon octicon-link"></span></a>TL;DR</h2>
+<a id="tldr" class="anchor" href="#tldr" aria-hidden="true"><span class="octicon octicon-link"></span></a>TL;DR</h2>
 
 <p>Since a fold can be interpreted as replacing a type's constructors with functions and any type can be described with an algebra of functors, by defining our functions over the elements of the algebra, we can write programs that are independent of the shape of the datatype. 
 Our algebra of functors consists of:
@@ -93,10 +95,10 @@ Our algebra of functors consists of:
 </code></pre>
 
 <h2>
-<a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h2>
+<a id="background" class="anchor" href="#background" aria-hidden="true"><span class="octicon octicon-link"></span></a>Background</h2>
 
 <h3>
-<a name="a-100-mph-tour-into-category-theory-land" class="anchor" href="#a-100-mph-tour-into-category-theory-land"><span class="octicon octicon-link"></span></a>A 100 mph tour into Category theory land</h3>
+<a id="a-100-mph-tour-into-category-theory-land" class="anchor" href="#a-100-mph-tour-into-category-theory-land" aria-hidden="true"><span class="octicon octicon-link"></span></a>A 100 mph tour into Category theory land</h3>
 
 <p>This library uses category theory as the basis for its machinery, so to understand how it works, we need some theory.</p>
 
@@ -105,7 +107,7 @@ Our algebra of functors consists of:
 <p><a href="http://alissapajer.github.io/conferenceslides/craftconf2014/#/">Alissa Pajer</a> does a great introduction to the basic concepts and how they relate to programming</p>
 
 <h3>
-<a name="categories" class="anchor" href="#categories"><span class="octicon octicon-link"></span></a>Categories</h3>
+<a id="categories" class="anchor" href="#categories" aria-hidden="true"><span class="octicon octicon-link"></span></a>Categories</h3>
 
 <p>A category is a collection of objects and arrows between them with identity and composition:</p>
 
@@ -124,7 +126,7 @@ Must be associative: f∘(g∘h) = (f∘g)∘h</p>
 <p>In other words, to effectively form a Category, the choosen arrow composition must be associative and it must be unique </p>
 
 <h3>
-<a name="functors" class="anchor" href="#functors"><span class="octicon octicon-link"></span></a>Functors</h3>
+<a id="functors" class="anchor" href="#functors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Functors</h3>
 
 <p>A functor from cat. C to cat. D is a pair of functions one maps objects of C to D and the other maps arrows of C to D
 functor F:C→D, A ∈C⇒FA∈D, f ∈C⇒Ff∈D</p>
@@ -137,7 +139,7 @@ FidA=idFA</p>
 <p>(TO BE DONE:)</p>
 
 <h3>
-<a name="initial-algebras" class="anchor" href="#initial-algebras"><span class="octicon octicon-link"></span></a>Initial Algebras</h3>
+<a id="initial-algebras" class="anchor" href="#initial-algebras" aria-hidden="true"><span class="octicon octicon-link"></span></a>Initial Algebras</h3>
 
 <p>(how types and functions are a category)</p>
 
@@ -146,7 +148,7 @@ FidA=idFA</p>
 <p>(how types can be described as an algebra of functors)</p>
 
 <h3>
-<a name="folds" class="anchor" href="#folds"><span class="octicon octicon-link"></span></a>Folds</h3>
+<a id="folds" class="anchor" href="#folds" aria-hidden="true"><span class="octicon octicon-link"></span></a>Folds</h3>
 
 <p>(define fold)</p>
 
