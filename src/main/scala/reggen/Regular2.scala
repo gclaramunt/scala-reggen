@@ -4,218 +4,15 @@ import scala.language.higherKinds
 
 
 //parametric regular types
-object Regular2 {
-
-/*
-  -- | **********************************
-  -- | ** Tipos regulares parametricos **
-  -- | **********************************
-
-  -- | Como visto en el curso, los tipos regulares parametricos pueden ser
-  -- | representados en funcion de bifunctores regulares.
-  -- | Para ello es necesario definir una nueva clase, que llamaremos
-  -- | Regular2 y una nueva familia de tipos, PF2, que asocia un bifunctor
-  -- | (representado por un constructor de tipo de kind * -> * -> *) a
-  -- | a cada constructor t de kind * -> * que es declarado instancia de
-  -- | la familia de tipos.
-*/
-  // type family PF2 (t :: * -> *) :: * -> * -> *
-  // ej type instance PF2 List = U2 :++: (Par :**: Rec)
-/*
-  //NO ENCODING ????
-  trait PF2[TT[_],RR[_,_]]
-
-  implicit def pf2List = new PF2[List]{ type RR= :++:[U2,Par:**:Rec]}
-
-  // class Regular2 t where
-  //    from2 :: t a -> (PF2 t) a (t a)  --- recibe t a y devuelve el tipo resultante de aplicar a PF2(t) a y t a
-  //    to2   :: (PF2 t) a (t a) ->  t a
-
-  trait Regular2[T[_]]{
-    def from2[A]:T[A]=>PF2[A,T] 
-    def to2[A]:PF2[A,T]=>T[A]
-  }
-*/
-
-  
-
-  /*
-    -- | Bifunctores regulares. Al igual que para los (mono)functores regulares
-    -- | definiremos los bifunctores regulares en Haskell y sus correspondientes
-    -- | instancias de la clase Bifunctor.
-
-    class Bifunctor f where
-       bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
-  */
-/*  trait Bifunctor[F[_, _]] {
-    def bimap[A,R,B,S](f: A => B, g: R => S): F[A, R]=>F[B, S]
-  }
-*/
-  trait Bifunctor[F[_, _]] {
-    def bimap[A, R, B, S](fa: F[A, R], f: A => B, g: R => S): F[B, S]
-  }
+object Regular2Bifunctors {
 
 
-  /*
-      infixr 6 :++:
-      infixr 7 :**:
-
-    no way :(
-  */
-
-  /*
-    -- | Bifunctor constante
-
-    data K2 a b r = K2 a
-  */
-  case class K2[A,B,R](a:A) 
-
-  /*
-    instance Bifunctor (K2 a)  where
-       bimap f g (K2 x) = (K2 x)
-  */
-  implicit def Bik2[A] =new Bifunctor[ ({type λ[B,R]=K2[A,B,R]})#λ ]{
-    def bimap[A1, R, B, S](k2:K2[A,A1,R], f: A1 => B,g: R => S)= K2[A,B,S](k2.a) 
-  }
-
-  /*
-    -- | Bifunctor constante 1
-
-    data U2 a r = U2
-  */
-  case class U2[A,R]()
-  /*
-    instance Bifunctor U2  where
-       bimap f g U2 = U2
-  */
-  implicit def BiU2 =new Bifunctor[U2]{
-    def bimap[A, R, B, S](u2:U2[A,R], f: A => B,g: R => S)= U2[B,S]()
-  }
-
-  /*
-    -- | Primera proyeccion (ocurrencia parametro)
-
-    data Par a r = Par a
-  */
-  case class Par[A,R](a:A)
-  /*
-    instance Bifunctor Par where
-       bimap f g (Par x) = Par (f x)
-  */
-  implicit def BiPar= new Bifunctor[Par]{
-    def bimap[A, R, B, S]( par:Par[A,R], f: A => B,g: R => S)=  Par[B,S](f(par.a))
-  }
-
-  /*
-    -- | Segunda proyeccion (ocurrencia posicion recursiva)
-
-    data Rec a r = Rec r
-  */
-  case class Rec[A,R](r:R)
-  /*
-    instance Bifunctor Rec where
-       bimap f g (Rec r) = Rec (g r)
-  */
-  implicit def BiRec = new  Bifunctor[Rec] {
-    def bimap[A, R, B, S](rec:Rec[A,R], f: A => B,g: R => S)=  Rec[B,S](g(rec.r))
-  }
-
-  /*
-    -- | Suma de bifunctores
-
-    data (f :++: g) a r = LL (f a r) | RR (g a r)
-  */
-
-  //ugh! must be a better way
-  trait :++:[A,R,F[_,_],G[_,_]]
-  case class LL[A,R,F[_,_],G[_,_]](f:F[A,R]) extends :++:[A,R,F,G]
-  case class RR[A,R,F[_,_],G[_,_]](g:G[A,R]) extends :++:[A,R,F,G]
-
-    /*
-      instance (Bifunctor t, Bifunctor u) => Bifunctor (t :++: u) where
-         bimap f g (LL x) = LL (bimap f g x)
-         bimap f g (RR y) = RR (bimap f g y)
-    */
-
-  implicit def BiPlus[F[_,_],G[_,_]](implicit bf:Bifunctor[F],bg:Bifunctor[G])=new Bifunctor[({type λ[A,R]= :++:[A,R,F,G]})#λ] {
-    def bimap[A, R, B, S](fa: :++:[A,R,F,G], f: A => B, g: R => S): :++:[B,S,F,G]=fa match {
-      case LL(lf) =>LL(bf.bimap(lf,f,g))
-      case RR(rg) =>RR(bg.bimap(rg,f,g))
-    }
-  }
-
-
-  /*
-    -- | Producto de bifunctores
-
-    data (f :**: g) a r = f a r :**: g a r
-  */
-
-  //:**:
-  case class **[A,R,F[_,_],G[_,_]](f:F[A,R],g:G[A,R])
-
-  /*
-  instance (Bifunctor t, Bifunctor u) => Bifunctor (t :**: u) where
-     bimap f g (x :**: y) = bimap f g x :**: bimap f g y
-  */
-  implicit def BiStar[F[_,_],G[_,_]](implicit bf:Bifunctor[F],bg:Bifunctor[G])=new Bifunctor[({type λ[A,R]= **[A,R,F,G]})#λ] {
-    def bimap[A, R, B, S](fa: **[A,R,F,G], f: A => B, g: R => S): **[B,S,F,G]= **(bf.bimap(fa.f,f,g),bg.bimap(fa.g,f,g))
-  }
-
-
-  // type family PF2 (t :: * -> *) :: * -> * -> *
-  // ej type instance PF2 List = U2 :++: (Par :**: Rec)
-  /*
-    //NO ENCODING ????
-    trait PF2[TT[_],RR[_,_]]
-
-    implicit def pf2List = new PF2[List]{ type RR= :++:[U2,Par:**:Rec]}
-
-    // class Regular2 t where
-    //    from2 :: t a -> (PF2 t) a (t a)  --- recibe t a y devuelve el tipo resultante de aplicar a PF2(t) a y t a
-    //    to2   :: (PF2 t) a (t a) ->  t a
-
-  */
-  trait PF2[T[_,_]] {
-    type INST
-  }
-
-  trait Regular2[T[_]]{
-    def from2[A,PF2[_,_]]:T[A]=>PF2[A,T[A]] 
-    def to2[A,PF2[_,_]]:PF2[A,T[A]]=>T[A]
-  }
-/*
-  type PARREC[A]= **[A,List[A],Par[A,List[A]],Rec[A,List[A]]]
-  type BF_LIST[A]=U2:++:PARREC[A,List]
-  implicit def pf2OfList = new PF2[List]{ type INST= BF_LIST}
-*/  
-//implicit def regOfList= new 
-
-  //trait PF2[TT[_],RR[_,_]]
-  /*
-  trait PF2[T[_]]{
-    type BF[_,_]
-
-  }
-*/
-  /*
-  -- | Functor de tipo compuesto con bifunctor
-
-  data (d :@@: f) a r = Comp2 {unComp2 :: d (f a r)}
-  */
-
-  /*
-  case class Comp2[A,R,F[A,R],D[F[A,R]]](unComp2:D[F]){
-    type PF2D[X]=PF2[X,D[X]]
-  }
-  type :@@:[A,R,F[A,R],D[F[A,R]]] = Comp2[A,R,F,D]
-*/
-/*
-  trait CompApply[D[_],F[_,_],PF2[_,_]]{
-    type PF2D[X]=PF2[X,D[X]]
-    type BF[A,R]=Comp2[A,R,F,PF2D]
-  }*/
-
+trait Regular2[T[_]]{
+  type PF2[_,_]
+  val bf:Bifunctor[PF2]
+  def from2[A](t:T[A]):PF2[A,T[A]]
+  def to2[A](pf:PF2[A,T[A]]):T[A]
+}
   /*
   -- | *********************************************
   -- | ** Definicion generica del functor de tipo **
@@ -225,32 +22,11 @@ object Regular2 {
   pmap f = to2 . bimap f (pmap f) . from2 
         == to2(bimap f (pmap f) from2 da )  
 */
-/*
-  def pmap[A,B,D[_]](da:D[A],f:A=>B)(implicit d:Regular2[D], pf2:PF2[D], bf:Bifunctor[DF2D]):D[B]={
-    //bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
-    d.to2(bf.bimap(d.from2(da),f, (x:D[A])=>pmap(x,f)(d,bf)))
-  }
-*/
-  /*
-  instance (Regular2 d, Bifunctor (PF2 d), Bifunctor f) => Bifunctor (d :@@: f) where
-     bimap f g x = Comp2 $ pmap (bimap f g) $ unComp2 x
-  */
-/*
-  implicit def BiComp[F[_,_]:Bifunctor,D[_]:Regular2,PF2[_,_]:Bifunctor]=new Bifunctor[CompApply[D,F,PF2]#BF]{
-    
-    val bf=implicitly[Bifunctor[F]]
-    val d=implicitly[Regular2[D]]
-    def bimap[A, R, B, S](fa: Comp2[A,R,F,PF2D], f: A => B, g: R => S): Comp2[B,S,F,PF2D]= Comp2(
-      pmap(fa.unComp2, (x:F[A,R]) => bf.bimap(x,f,g))(d,bf)
-    )
-  }
-*/
-/*
- trait Bifunctor[F[_, _]] {
-    def bimap[A, R, B, S](fa: F[A, R], f: A => B, g: R => S): F[B, S]
-  }
-*/
 
+  def pmap[A,B,D[_]](da:D[A])(f:A=>B)(implicit r2:Regular2[D]):D[B]={
+    //bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
+    r2.to2(r2.bf.bimap(r2.from2(da))(f, (pmap(_)(f))))
+  }
 
 /*
   -- | *******************************************
@@ -260,13 +36,8 @@ object Regular2 {
   fold2  :: (Regular2 d, Bifunctor (PF2 d)) => (PF2 d a b -> b) -> d a -> b
   fold2 h = h . bimap id (fold2 h) . from2
 */
-  def fold2[A,B,D[A]:Regular2,PF2D[A,B]:Bifunctor](da:D[A],h:PF2D[A,B]=>B):B={
-    val bf=implicitly[Bifunctor[PF2D]]
-    val d=implicitly[Regular2[D]]
-    h(bf.bimap(d.from2(da), identity ,((x:D[A])=>fold2(x,h)(d,bf))))
-  }
-
-
+  def fold2[A,B,D[_]](da:D[A])(h:Regular2[D]#PF2[A,B]=>B)(implicit r2:Regular2[D]):B=
+    h(r2.bf.bimap(r2.from2(da))( identity ,fold2(_)(h)))
 
 /*
   -- Alternativamente:
