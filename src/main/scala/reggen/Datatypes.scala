@@ -128,18 +128,17 @@ object SampleRegularDatatypes{
 
     //type PF[Z] = Par[A,Z]:*:(List[A] :@@: Rec[A,Z]) 
     type PFL[A,Z] = Par[A,Z]
-    type PFR[A,Z] = (List[A]:*:Rec[A,Z])
-    type PF2[A,Z]=Comp2[PFL,PFR,A,Z]
+    type PFR[A,Z] = (List:@@:Rec[A,Z])
+    type PF2[A,Z]= PFL[A,Z]:*:PFR[A,Z]
 
     val bf=implicitly[Bifunctor[PF2]]
 
     def from2[A](t:Rose[A]):PF2[A,Rose[A]] = t match {
-      case Rose(a,childs) => ???
+      case Rose(a,childs) => :*:( Par(a), (:@@:(pmap(childs)(Rec(_)))))
     }
 
-    def to2[A](pf:PF2[A,Tree[A]]):Tree[A]=  pf match {
-      case L(Par(n)) => Leaf(n)
-      case R(:*:(Rec(x),Rec(y))) => Node(x,y)
+    def to2[A](pf:PF2[A,Rose[A]]):Rose[A]= pf match  {
+      case (Par(a):*:(:@@:(d))) => Rose(a, pmap(d)(_.unRec))
     }
   }
   
