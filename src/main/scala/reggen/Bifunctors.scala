@@ -124,11 +124,6 @@ data (d :@@: f) a r = Comp2 {unComp2 :: d (f a r)}
 instance (Regular2 d, Bifunctor (PF2 d), Bifunctor f) => Bifunctor (d :@@: f) where
    bimap f g x = Comp2 $ pmap (bimap f g) $ unComp2 x
 
-   case class :@:[F[_],G](unComp:F[G])   
-
-     implicit def fcomp[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=F:@:G[A]})#abs]{
-           def fmap[A,B](fga:F:@:G[A])(f: A => B):F:@:G[B]= :@:(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
-             }
 
 */
 

@@ -101,7 +101,7 @@ object SampleRegularDatatypes{
 	  }
   }
 
-  implicit def regular2Tree[A]:Regular2[Tree]=new Regular2[Tree]{
+  implicit def regular2Tree:Regular2[Tree]=new Regular2[Tree]{
 
     //type PF[Z] = K[A,Z]:+:(I[Z]:*:I[Z])
     type PFL[A,Z] = Par[A,Z]
@@ -124,7 +124,7 @@ object SampleRegularDatatypes{
   //rose tree
   case class Rose[A](a:A, childs:List[Rose[A]])
 
-  implicit def regular2Rose[A]:Regular2[Rose]=new Regular2[Rose]{
+  implicit def regular2Rose:Regular2[Rose]=new Regular2[Rose]{
 
     //type PF[Z] = Par[A,Z]:*:(List[A] :@@: Rec[A,Z]) 
     type PFL[A,Z] = Par[A,Z]
