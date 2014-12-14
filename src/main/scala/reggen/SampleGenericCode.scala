@@ -1,6 +1,7 @@
 package reggen
 
 import Functors._
+import Regular2Bifunctors._
 import GenericFold._
 import SampleRegularDatatypes._
 
@@ -99,16 +100,14 @@ object SampleGenericCode extends App {
       case star:(Regular[Z]#PF[Boolean]:*:Regular[Z]#PF[Boolean]) @unchecked  => exists(star.f) || exists(star.g)
       //case c:Comp[_,_,_] => Nil 
     }
-/*
-    val boolL=pmap[Int,Boolean,List[Int]](l)(_>4)
-    val boolT=pmap[Int,Boolean,Tree[Int]](tp)(_>4)
+    
+    val boolL=pmap(l)(_>4)
+    val boolT=pmap(tp)(_>4)
 
     println(s"boolL = $boolL" )
     println(s"boolT = $boolT" )
     println 
-*/
-    val boolL = List(true, false, false, true, true )
-    val boolT:Tree[Boolean] = Node(Leaf(true),Node(Leaf(true), Leaf(true)))
+    
 
     println("all great than 4 of List[Int] = " + fold(boolL)(all) )
     println("all great than 4 of Tree[Int] = " + fold(boolT)(all) )
