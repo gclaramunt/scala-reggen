@@ -19,22 +19,12 @@ trait Regular[T]{
   def to(pf:PF[T]):T
 }
 
-object GenericFold {
+object Regular {
 
   /**
     Generic fold
   */
   def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A =
     h(r.ff.fmap(r.from(d))(fold(_)(h)))
-
-  /**
-    Generic map
-  */
-  /*
-   NOT YET... NEEDS BIFUNCTOR
-  def pmap[A,B,D](d:D)(f:A=>B)(implicit r:Regular[D]):D = 
-    r.to( r.ff.fmap ( r.from(d) )(pmap(_)(f)))
-    */
-
 
 }

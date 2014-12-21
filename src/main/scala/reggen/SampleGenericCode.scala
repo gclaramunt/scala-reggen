@@ -2,8 +2,8 @@ package reggen
 
 import Functors._
 import Bifunctors._
-import Regular2Bifunctors._
-import GenericFold._
+import Regular._
+import Regular2._
 import SampleRegularDatatypes._
 
 object SampleGenericCode extends App {
@@ -108,7 +108,6 @@ object SampleGenericCode extends App {
     println(s"boolL = $boolL" )
     println(s"bool = $boolT" )
     println 
-    
 
     println("all great than 4 of List[Int] = " + fold(boolL)(all) )
     println("all great than 4 of Tree[Int] = " + fold(boolT)(all) )
@@ -116,30 +115,24 @@ object SampleGenericCode extends App {
     println("exists great than 4 of Tree[Int] = " + fold(boolT)(exists) )
     println 
 
-
-
   val rose = Rose(1, List(Rose(2,Nil), Rose(6,List(Rose(4,Nil),Rose(9,Nil))), Rose(3,Nil))) 
 
-  type REG2[X,Z[_]]=Regular2[Z]#PF2[X,Z[X]]
-  def sum2[Z[_]](r:REG2[Int,Z])(implicit r2:Regular2[Z]):Int = r match {
+  def sum2[Z[_]](r:Regular2[Z]#PF2[Int,Z[Int]])(implicit r2:Regular2[Z]):Int = r match {
+  //def sum2[Z[Int]:Regular2]: Regular2[Z]#PF2[Int,Z[Int]] => Int =  {
     case U2() => 0
-    case k2:K2[Int,_,Z[Int]] => k2.unK
-    case l:L[REG2[Int,Z],_] => sum2(l.f)
-    case r:R[_,REG2[Int,Z]] => sum2(r.g)
-    case p:Par[Int,Z[Int]] => p.unPar
-    case r:Rec[Int,Z[Int]] => sum2(r2.from2(r.unRec))
-    case star:(REG2[Int,Z]:*:REG2[Int,Z]) => sum2(star.f) + sum2(star.g)
-    case comp2:(Z:@@:REG2[Int,Z]) => sum2(
-      r2.from2(pmap(comp2.unComp2)(
-        sum2(_)(r2)
-      )(r2))
-    )(r2)
+    case k2:K2[Int,_,Z[Int]] @unchecked => k2.unK
+    case l:L[Regular2[Z]#PF2[Int,Z[Int]],_] @unchecked => sum2(l.f)
+    case r:R[_,Regular2[Z]#PF2[Int,Z[Int]]] @unchecked => sum2(r.g)
+    case p:Par[Int,Z[Int]] @unchecked => p.unPar
+    case r:Rec[Int,Z[Int]] @unchecked => sum2(r2.from2(r.unRec))
+    case star:(Regular2[Z]#PF2[Int,Z[Int]]:*:Regular2[Z]#PF2[Int,Z[Int]]) @unchecked => sum2(star.f) + sum2(star.g)
+    //case comp2:(Z:@@:Regular2[Z]#PF2[Int,Z[Int]]) @unchecked => sum2(r2.from2(pmap(comp2.unComp2)(t=>sum2(t)(r2))(r2)))
   }
-
-  println("sum2 of Tree[Int] = " + fold2(tp)({(x:Tree[Int])=> sum2(x)(regular2Tree)}))
+/*
+  println("sum2 of Tree[Int] = " + fold2(tp)(sum2(_)(regular2Tree)))
   println("sum2 of List[Int] = " + fold2(l)(sum2(_)(regular2List)))
-  println("sum2 of Rose[Int] = " + fold2(rose)(sum2(_)(regular2Rose)))
-
+  println("sum2 of Rose[Int] = " + fold2(rose)(sum2))
+*/
 
 }
 
@@ -154,12 +147,11 @@ object SampleWithMonoid extends App{
 
   def reduce[Z,T](implicit m:Monoid[T]):Regular[Z]#PF[T]=>T = {
     case U() => m.zero
-    case k:K[T,Z] => k.unK
-    
+    case k:K[T,Z]=> k.unK
     case i:I[T]  => i.unI
-    case l:L[Regular[Z]#PF[T],_]   => reduce(m)(l.f)
-    case r:R[_,Regular[Z]#PF[T]]   => reduce(m)(r.g)
-    case star:(Regular[Z]#PF[T]:*:Regular[Z]#PF[T])   => m.append(reduce(m)(star.f),reduce(m)(star.g))
+    case l:L[Regular[Z]#PF[T],_] @unchecked => reduce(m)(l.f)
+    case r:R[_,Regular[Z]#PF[T]]  @unchecked => reduce(m)(r.g)
+    case star:(Regular[Z]#PF[T]:*:Regular[Z]#PF[T])  @unchecked => m.append(reduce(m)(star.f),reduce(m)(star.g))
   }
 
   val ti:TreeInt=NodeI(LeafI(1),LeafI(2))

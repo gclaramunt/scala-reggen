@@ -1,7 +1,8 @@
 package reggen
 
 import Functors._
-import Regular2Bifunctors._
+import Bifunctors._
+import Regular2._
 
 /*
 -- | Bifunctores regulares. Al igual que para los (mono)functores regulares

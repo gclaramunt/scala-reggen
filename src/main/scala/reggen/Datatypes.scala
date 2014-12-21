@@ -2,7 +2,7 @@ package reggen
 
 import Functors._
 import Bifunctors._
-import Regular2Bifunctors._
+import Regular2._
 
 /**
   Some simple data types and corresponding regular typeclasses
@@ -56,7 +56,7 @@ object SampleRegularDatatypes{
   }
 
   //parametrized binary tree
-  trait Tree[A]{}
+  trait Tree[A]
   case class Leaf[A](i:A) extends Tree[A]
   case class Node[A](l:Tree[A],r:Tree[A]) extends Tree[A]
 
