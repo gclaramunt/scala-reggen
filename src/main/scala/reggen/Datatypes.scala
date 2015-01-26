@@ -134,11 +134,11 @@ object SampleRegularDatatypes{
     val bf=implicitly[Bifunctor[PF2]]
 
     def from2[A](t:Rose[A]):PF2[A,Rose[A]] = t match {
-      case Rose(a,childs) => :*:( Par(a), (:@@:(pmap(childs)(Rec(_)))))
+      case Rose(a,childs) => :*:( Par(a), (:@@:(pmap(childs)(Rec(_)),regular2List)))
     }
 
     def to2[A](pf:PF2[A,Rose[A]]):Rose[A]= pf match  {
-      case (Par(a):*:(:@@:(d))) => Rose(a, pmap(d)(_.unRec))
+      case (Par(a):*:(:@@:(d,_))) => Rose(a, pmap(d)(_.unRec))
     }
   }
   

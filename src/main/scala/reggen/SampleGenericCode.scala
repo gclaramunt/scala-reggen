@@ -117,22 +117,29 @@ object SampleGenericCode extends App {
 
   val rose = Rose(1, List(Rose(2,Nil), Rose(6,List(Rose(4,Nil),Rose(9,Nil))), Rose(3,Nil))) 
 
-  def sum2[Z[_]](r:Regular2[Z]#PF2[Int,Z[Int]])(implicit r2:Regular2[Z]):Int = r match {
-  //def sum2[Z[Int]:Regular2]: Regular2[Z]#PF2[Int,Z[Int]] => Int =  {
+  //def sum2[Z[_]](r:_<:Regular2[Z]#PF2[Int,Z[Int]])(implicit r2:Regular2[Z]):Int = r match {
+  
+
+  def sum2[Z[_]:Regular2,X[_]]: Regular2[Z]#PF2[Int,Int] => Int =  {
     case U2() => 0
-    case k2:K2[Int,_,Z[Int]] @unchecked => k2.unK
-    case l:L[Regular2[Z]#PF2[Int,Z[Int]],_] @unchecked => sum2(l.f)
-    case r:R[_,Regular2[Z]#PF2[Int,Z[Int]]] @unchecked => sum2(r.g)
-    case p:Par[Int,Z[Int]] @unchecked => p.unPar
-    case r:Rec[Int,Z[Int]] @unchecked => sum2(r2.from2(r.unRec))
-    case star:(Regular2[Z]#PF2[Int,Z[Int]]:*:Regular2[Z]#PF2[Int,Z[Int]]) @unchecked => sum2(star.f) + sum2(star.g)
-    //case comp2:(Z:@@:Regular2[Z]#PF2[Int,Z[Int]]) @unchecked => sum2(r2.from2(pmap(comp2.unComp2)(t=>sum2(t)(r2))(r2)))
+    case K2(_) => 0 //k2:K2[Int,_,Z[Int]] @unchecked => k2.unK
+    case l:L[Regular2[Z]#PF2[Int,Int],_] @unchecked => sum2(implicitly[Regular2[Z]])(l.f)
+    case r:R[_,Regular2[Z]#PF2[Int,Int]] @unchecked => sum2(implicitly[Regular2[Z]])(r.g)
+    case p:Par[Int,Int] @unchecked => p.unPar
+    case r:Rec[Int,Int] @unchecked => r.unRec// sum2((implicitly[Regular2[Z]]).from2(r.unRec)) 
+    case star:(Regular2[Z]#PF2[Int,Int]:*:Regular2[Z]#PF2[Int,Int]) @unchecked => sum2(implicitly[Regular2[Z]])(star.f) + sum2(implicitly[Regular2[Z]])(star.g)
+    case comp2:( :@@:[X, Regular2[X]#PF2[Int,Int]]) @unchecked => {
+      implicit val evX = comp2.rd
+      val sum2app =sum2(evX)
+      val newX = pmap(comp2.unComp2)(sum2app)(evX)
+      fold2(newX)(sum2app)(comp2.rd)
+    }
+
   }
-/*
-  println("sum2 of Tree[Int] = " + fold2(tp)(sum2(_)(regular2Tree)))
-  println("sum2 of List[Int] = " + fold2(l)(sum2(_)(regular2List)))
+
+  println("sum2 of Tree[Int] = " + fold2(tp)(sum2))
+  println("sum2 of List[Int] = " + fold2(l)(sum2))
   println("sum2 of Rose[Int] = " + fold2(rose)(sum2))
-*/
 
 }
 

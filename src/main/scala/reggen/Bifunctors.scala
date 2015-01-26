@@ -128,10 +128,10 @@ instance (Regular2 d, Bifunctor (PF2 d), Bifunctor f) => Bifunctor (d :@@: f) wh
 
 */
 
-  case class :@@:[D[_],F](unComp2:D[F])  
+  case class :@@:[D[_],F](unComp2:D[F], val rd:Regular2[D]) 
 
-  implicit def fbicomp[F[_,_],D[_]](implicit ff:Bifunctor[F], rd:Regular2[D])=new Bifunctor[({ type abs[A,B]=D:@@:F[A,B]})#abs]{
-    def bimap[A,B,A2,B2](fga:D:@@:F[A,A2])(f: A => B,g: A2=>B2):D:@@:F[B,B2]= :@@:(pmap(fga.unComp2)(ff.bimap(_)(f,g)))
+  implicit def fbicomp[F[_,_],D[_]](implicit ff:Bifunctor[F])=new Bifunctor[({ type abs[A,B]=D:@@:F[A,B]})#abs]{
+    def bimap[A,B,A2,B2](fga:D:@@:F[A,A2])(f: A => B,g: A2=>B2):D:@@:F[B,B2]= :@@:(pmap(fga.unComp2)(ff.bimap(_)(f,g))(fga.rd),fga.rd)
   }
 
 }
