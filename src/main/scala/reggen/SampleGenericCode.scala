@@ -117,18 +117,17 @@ object SampleGenericCode extends App {
 
   val rose = Rose(1, List(Rose(2,Nil), Rose(6,List(Rose(4,Nil),Rose(9,Nil))), Rose(3,Nil))) 
 
-  //def sum2[Z[_]](r:_<:Regular2[Z]#PF2[Int,Z[Int]])(implicit r2:Regular2[Z]):Int = r match {
-  
 
   def sum2[Z[_]:Regular2,X[_]]: Regular2[Z]#PF2[Int,Int] => Int =  {
     case U2() => 0
     case K2(_) => 0 //k2:K2[Int,_,Z[Int]] @unchecked => k2.unK
-    case l:L[Regular2[Z]#PF2[Int,Int],_] @unchecked => sum2(implicitly[Regular2[Z]])(l.f)
-    case r:R[_,Regular2[Z]#PF2[Int,Int]] @unchecked => sum2(implicitly[Regular2[Z]])(r.g)
-    case p:Par[Int,Int] @unchecked => p.unPar
-    case r:Rec[Int,Int] @unchecked => r.unRec// sum2((implicitly[Regular2[Z]]).from2(r.unRec)) 
-    case star:(Regular2[Z]#PF2[Int,Int]:*:Regular2[Z]#PF2[Int,Int]) @unchecked => sum2(implicitly[Regular2[Z]])(star.f) + sum2(implicitly[Regular2[Z]])(star.g)
-    case comp2:( :@@:[X, Regular2[X]#PF2[Int,Int]]) @unchecked => {
+    case l:L[Regular2[Z]#PF2[Int,Int],_]  => sum2(implicitly[Regular2[Z]])(l.f)
+    case r:R[_,Regular2[Z]#PF2[Int,Int]]  => sum2(implicitly[Regular2[Z]])(r.g)
+    //case R(g)  => sum2(implicitly[Regular2[Z]])(g)
+    case p:Par[Int,Int]  => p.unPar
+    case r:Rec[Int,Int]  => r.unRec// sum2((implicitly[Regular2[Z]]).from2(r.unRec)) 
+    case star:(Regular2[Z]#PF2[Int,Int]:*:Regular2[Z]#PF2[Int,Int])  => sum2(implicitly[Regular2[Z]])(star.f) + sum2(implicitly[Regular2[Z]])(star.g)
+    case comp2:( :@@:[X, Regular2[X]#PF2[Int,Int]])  => {
       implicit val evX = comp2.rd
       val sum2app =sum2(evX)
       val newX = pmap(comp2.unComp2)(sum2app)(evX)
@@ -154,7 +153,7 @@ object SampleWithMonoid extends App{
 
   def reduce[Z,T](implicit m:Monoid[T]):Regular[Z]#PF[T]=>T = {
     case U() => m.zero
-    case k:K[T,Z]=> k.unK
+    case k:K[T,_]=> k.unK
     case i:I[T]  => i.unI
     case l:L[Regular[Z]#PF[T],_] @unchecked => reduce(m)(l.f)
     case r:R[_,Regular[Z]#PF[T]]  @unchecked => reduce(m)(r.g)
@@ -174,6 +173,26 @@ object SampleWithMonoid extends App{
     val zero=Nil
     def append(t1:List[_], t2:List[_]):List[_] =t1++t2
   }
+
+  val rose = Rose(1, List(Rose(2,Nil), Rose(6,List(Rose(4,Nil),Rose(9,Nil))), Rose(3,Nil))) 
+
+/*
+  def reduce2[T,Z[_],X[_]](rr: Regular2[Z]#PF2[T,T])(implicit r2:Regular2[Z], m:Monoid[T]): T = rr match  {
+    case U2() => m.zero 
+    case k:K[T,_]=> k.unK
+    case L(f) => reduce2(r2,m)(f)
+    case r:R[_,Regular2[Z]#PF2[T,T]] @unchecked => reduce2(r.g)
+    case p:Par[T,T] @unchecked => p.unPar
+    case r:Rec[T,T] @unchecked => r.unRec// sum2((implicitly[Regular2[Z]]).from2(r.unRec)) 
+    case star:(Regular2[Z]#PF2[T,T]:*:Regular2[Z]#PF2[T,T]) @unchecked => m.append(reduce2(star.f),reduce2(star.g))
+    case comp2:( :@@:[X, Regular2[X]#PF2[T,T]]) @unchecked => {
+      implicit val evX = comp2.rd
+      val sum2app =x => reduce2(x)(evX,m) 
+      val newX = pmap(comp2.unComp2)(sum2app)(evX)
+      fold2(newX)(sum2app)(comp2.rd)
+    }
+  }
+*/
 
 
 }
