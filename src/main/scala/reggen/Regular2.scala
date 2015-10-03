@@ -3,7 +3,7 @@ package reggen
 import scala.language.higherKinds
 
 trait Regular2[T[_]]{
-  type PF2[_,_]
+  type PF2[_,_] 
   val bf:Bifunctor[PF2]
   def from2[A](t:T[A]):PF2[A,T[A]]
   def to2[A](pf:PF2[A,T[A]]):T[A]

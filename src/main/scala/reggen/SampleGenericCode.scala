@@ -42,8 +42,8 @@ object SampleGenericCode extends App {
 
   def max[Z]:Regular[Z]#PF[Int]=>Int = {
       case U() => 0
-      case k:K[Int,Z]  @unchecked => k.unK
-      case i:I[Int]  @unchecked => i.unI 
+      case k:K[Int,Z]  => k.unK
+      case i:I[Int]   => i.unI 
       case l:L[Regular[Z]#PF[Int],_]  @unchecked => max(l.f)
       case r:R[_,Regular[Z]#PF[Int]]  @unchecked => max(r.g)
       case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int])  @unchecked => Math.max(max(star.f),max(star.g))
@@ -140,7 +140,55 @@ object SampleGenericCode extends App {
   println("sum2 of List[Int] = " + fold2(l)(sum2))
   println("sum2 of Rose[Int] = " + fold2(rose)(sum2))
 
+/*
+
+psum :: (Regular2 d, Bifunctor (PF2 d), C_fsum (PF2 d), Num a) => d a -> a
+psum = fold2 fsum
+ */
+/*
+  def pfsum[Z[_]:Regular2,X[_]](x: Regular2[Z]#PF2[Int,Int]): Int = fsum(x) 
+
+  def fsum[F[_,_]:Sum](f:F[Int,Int])=implicitly[Sum[F]].sum(f)
+
+  trait Sum[BF[_,_]] {
+    def sum(bf:BF[Int,Int]):Int
+  }
+
+  implicit val sumU2 = new Sum[U2]{
+    def sum(u2:U2[Int,Int]):Int = 0 
+  }
+
+  implicit def sumK2[B] ={
+    type BF[A,R]=K2[A,B,R]
+    new Sum[BF]{
+      def sum(k2:K2[Int,B,Int]):Int = k2.unK 
+    }
+  }
+
+  implicit val sumPar = new Sum[Par]{
+      def sum(par:Par[Int,Int]):Int = par.unPar
+    }
+
+  implicit val sumRec = new Sum[Rec]{
+      def sum(rec:Rec[Int,Int]):Int = rec.unRec
+    }
+
+  //type BF[F[_,_],G[_,_]]= 
+
+  implicit def sumL[F[_,_]:Sum,G[_,_]:Sum] =
+    new Sum[BiFComb[F,G,:+:]#abs]{
+      def sum(ss:F[Int,Int]:+:G[Int,Int]):Int = ss match {
+        case L(l) => implicitly[Sum[F]].sum(l) 
+        case R(r) => implicitly[Sum[G]].sum(r) 
+    }
+  }
+
+  implicit def sumStar[F[_,_]:Sum,G[_,_]:Sum]= new Sum[BiFComb[F,G,:*:]#abs]{
+      def sum(str:F[Int,Int] :*: G[Int,Int]):Int =  implicitly[Sum[F]].sum(str.f) +  implicitly[Sum[G]].sum(str.g)
+    }
+*/
 }
+
 
 
 object SampleWithMonoid extends App{
@@ -177,7 +225,7 @@ object SampleWithMonoid extends App{
   val rose = Rose(1, List(Rose(2,Nil), Rose(6,List(Rose(4,Nil),Rose(9,Nil))), Rose(3,Nil))) 
 
 /*
-  def reduce2[T,Z[_],X[_]](rr: Regular2[Z]#PF2[T,T])(implicit r2:Regular2[Z], m:Monoid[T]): T = rr match  {
+  nt]def reduce2[T,Z[_],X[_]](rr: Regular2[Z]#PF2[T,T])(implicit r2:Regular2[Z], m:Monoid[T]): T = rr match  {
     case U2() => m.zero 
     case k:K[T,_]=> k.unK
     case L(f) => reduce2(r2,m)(f)

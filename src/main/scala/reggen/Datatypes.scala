@@ -85,19 +85,19 @@ object SampleRegularDatatypes{
 
   implicit def regular2List:Regular2[List]=new Regular2[List]{
   	type PFL[A,Z] = U2[A,Z]
-  	type PFR[A,Z] = Par[A,Z]:*:Rec[A,Z] 
-  	type PF2[A,Z]  = PFL[A,Z]:+:PFR[A,Z] 
+  	type PFR[A,Z] = Par[A,Z]:**:Rec[A,Z] 
+  	type PF2[A,Z]  = PFL[A,Z]:++:PFR[A,Z] 
   
   	val bf=implicitly[Bifunctor[PF2]]
 
 	  def from2[A](t:List[A]):PF2[A,List[A]] = t match {
-	    case Nil => L(U2())
-	    case x::xs => R(:*:(Par(x),Rec(xs)))
+	    case Nil => LL(U2())
+	    case x::xs => RR(:**:(Par(x),Rec(xs)))
 	  }
 
 	  def to2[A](pf:PF2[A,List[A]]):List[A]=  pf match {
-	    case L(U2()) => Nil
-	    case R(:*:(Par(x),Rec(xs))) => x::xs
+	    case LL(U2()) => Nil
+	    case RR(:**:(Par(x),Rec(xs))) => x::xs
 	  }
   }
 
@@ -105,19 +105,19 @@ object SampleRegularDatatypes{
 
     //type PF[Z] = K[A,Z]:+:(I[Z]:*:I[Z])
     type PFL[A,Z] = Par[A,Z]
-    type PFR[A,Z] = (Rec[A,Z]:*:Rec[A,Z])
-    type PF2[A,Z]=PFL[A,Z]:+:PFR[A,Z]
+    type PFR[A,Z] = (Rec[A,Z]:**:Rec[A,Z])
+    type PF2[A,Z]=PFL[A,Z]:++:PFR[A,Z]
 
     val bf=implicitly[Bifunctor[PF2]]
 
     def from2[A](t:Tree[A]):PF2[A,Tree[A]] = t match {
-      case Leaf(n) => L(Par(n))
-      case Node(x,y) => R(:*:(Rec(x),Rec(y)))
+      case Leaf(n) => LL(Par(n))
+      case Node(x,y) => RR(:**:(Rec(x),Rec(y)))
     }
 
     def to2[A](pf:PF2[A,Tree[A]]):Tree[A]=  pf match {
-      case L(Par(n)) => Leaf(n)
-      case R(:*:(Rec(x),Rec(y))) => Node(x,y)
+      case LL(Par(n)) => Leaf(n)
+      case RR(:**:(Rec(x),Rec(y))) => Node(x,y)
     }
   }
   
@@ -129,16 +129,16 @@ object SampleRegularDatatypes{
     //type PF[Z] = Par[A,Z]:*:(List[A] :@@: Rec[A,Z]) 
     type PFL[A,Z] = Par[A,Z]
     type PFR[A,Z] = (List:@@:Rec[A,Z])
-    type PF2[A,Z]= PFL[A,Z]:*:PFR[A,Z]
+    type PF2[A,Z]= PFL[A,Z]:**:PFR[A,Z]
 
     val bf=implicitly[Bifunctor[PF2]]
 
     def from2[A](t:Rose[A]):PF2[A,Rose[A]] = t match {
-      case Rose(a,childs) => :*:( Par(a), (:@@:(pmap(childs)(Rec(_)),regular2List)))
+      case Rose(a,childs) => :**:( Par(a), (:@@:(pmap(childs)(Rec(_)),regular2List)))
     }
 
     def to2[A](pf:PF2[A,Rose[A]]):Rose[A]= pf match  {
-      case (Par(a):*:(:@@:(d,_))) => Rose(a, pmap(d)(_.unRec))
+      case (Par(a):**:(:@@:(d,_))) => Rose(a, pmap(d)(_.unRec))
     }
   }
   

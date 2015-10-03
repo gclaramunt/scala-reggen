@@ -16,7 +16,6 @@ class Bifunctor f where
    infixr 7 :**:
 */
 
-
 trait Bifunctor[F[_,_]] {
   def bimap[A, B, R, S](fa: F[A,R])(f: A => B,g:R=>S): F[B,S]
 }
@@ -37,7 +36,7 @@ object Bifunctors {
       bimap f g (K2 x) = (K2 x)
   */
 
-  case class K2[A,B,R](unK:A)
+  case class K2[A,B,R](unK:A) 
 
   implicit def FK2[A] =new Bifunctor[({type λ[B,R]=K2[A,B,R]})#λ]{
     def bimap[A1,B1,A2,B2](ka: K2[A,A1,A2])(f: A1 => B1, g: A2 => B2): K2[A,B1,B2]=K2(ka.unK)
@@ -52,7 +51,7 @@ object Bifunctors {
          bimap f g U2 = U2
 */
 
-  case class U2[A,R]()
+  case class U2[A,R]() 
 
   implicit def FU2 =new Bifunctor[U2]{
     def bimap[A1,B1,A2,B2](ua: U2[A1,A2])(f: A1 => B1, g: A2 => B2):U2[B1,B2]=U2()
@@ -68,7 +67,7 @@ object Bifunctors {
 
 
  */
-  case class Par[A,R](unPar:A)
+  case class Par[A,R](unPar:A) 
 
   implicit def FPar =new Bifunctor[Par]{
     def bimap[A1,B1,A2,B2](para:Par[A1,A2])(f: A1 => B1, g: A2 => B2):Par[B1,B2]=Par(f(para.unPar))
@@ -82,7 +81,7 @@ object Bifunctors {
             instance Bifunctor Rec where
                bimap f g (Rec r) = Rec (g r)
 */
-  case class Rec[A,R](unRec:R)
+  case class Rec[A,R](unRec:R) 
 
   implicit def FRec =new Bifunctor[Rec]{
     def bimap[A1,B1,A2,B2](reca:Rec[A1,A2])(f: A1 => B1, g: A2 => B2):Rec[B1,B2]=Rec(g(reca.unRec))
@@ -97,25 +96,31 @@ object Bifunctors {
                   bimap f g (LL x) = LL (bimap f g x)
                      bimap f g (RR y) = RR (bimap f g y)
 */
-/*
- //I can reuse from Functor.scala
-  trait :+:[F,G] 
-  case class L[F,G](f:F) extends :+:[F,G]
-  case class R[F,G](g:G) extends :+:[F,G]
-*/
 
-implicit def bifplus[F[_,_], G[_,_]](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[BiFComb[F,G,:+:]#abs]{
-  def bimap[A,B,A2,B2](fga:F[A,A2]:+:G[A,A2])(f: A => B, g:A2=>B2):F[B,B2]:+:G[B,B2]= fga match {
-    case L(lf) => L(ff.bimap(lf)(f,g))
-    case R(rg) => R(fg.bimap(rg)(f,g))
+  trait :++:[F,G] 
+  case class LL[F,G](f:F) extends :++:[F,G]
+  case class RR[F,G](g:G) extends :++:[F,G]
+
+implicit def bifplus[F[_,_] , G[_,_] ](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[BiFComb[F,G,:++:]#abs]{
+  def bimap[A,B,A2,B2](fga:F[A,A2]:++:G[A,A2])(f: A => B, g:A2=>B2):F[B,B2]:++:G[B,B2]= fga match {
+    case LL(lf) => LL(ff.bimap(lf)(f,g))
+    case RR(rg) => RR(fg.bimap(rg)(f,g))
   }
 }
+
 /*
-// I can reuse from Functor.scala
-case class :*:[F,G](f:F,g:G) 
+implicit def bifplus[F[_,_], G[_,_]](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[BiFComb[F,G,:++:]#abs]{
+  def bimap[A,B,A2,B2](fga:F[A,A2]:++:G[A,A2])(f: A => B, g:A2=>B2):F[B,B2]:++:G[B,B2]= fga match {
+    case LL(lf) => LL(ff.bimap(lf)(f,g))
+    case RR(rg) => RR(fg.bimap(rg)(f,g))
+  }
+}
 */
-implicit def fibifstar[F[_,_], G[_,_]](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[BiFComb[F,G,:*:]#abs]{
-  def bimap[A,B,A2,B2](fga:F[A,A2]:*:G[A,A2])(f: A => B,g:A2=>B2):F[B,B2]:*:G[B,B2]= :*:(ff.bimap(fga.f)(f,g),fg.bimap(fga.g)(f,g))
+
+case class :**:[F,G](f:F,g:G)  
+
+implicit def bifstar[F[_,_], G[_,_]](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[BiFComb[F,G,:**:]#abs]{
+  def bimap[A,B,A2,B2](fga:F[A,A2]:**:G[A,A2])(f: A => B,g:A2=>B2):F[B,B2]:**:G[B,B2]= :**:(ff.bimap(fga.f)(f,g),fg.bimap(fga.g)(f,g))
 }
 /*
 -- | Functor de tipo compuesto con bifunctor
