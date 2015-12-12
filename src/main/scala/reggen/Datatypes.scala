@@ -15,7 +15,7 @@ object SampleRegularDatatypes{
   case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 
 
-  implicit def regularTreeInt:Regular[TreeInt]=new Regular[TreeInt]{
+  implicit val regularTreeInt:Regular[TreeInt]=new Regular[TreeInt]{
 
     //type PF[Z] = K[Int,Z]:+:(I[Z]:*:I[Z])
     type PFL[Z] = K[Int,Z]
@@ -83,7 +83,7 @@ object SampleRegularDatatypes{
 
   // With Bifunctors
 
-  implicit def regular2List:Regular2[List]=new Regular2[List]{
+  implicit val regular2List:Regular2[List]=new Regular2[List]{
   	type PFL[A,Z] = U2[A,Z]
   	type PFR[A,Z] = Par[A,Z]:**:Rec[A,Z] 
   	type PF2[A,Z]  = PFL[A,Z]:++:PFR[A,Z] 
@@ -101,7 +101,7 @@ object SampleRegularDatatypes{
 	  }
   }
 
-  implicit def regular2Tree:Regular2[Tree]=new Regular2[Tree]{
+  implicit val regular2Tree:Regular2[Tree]=new Regular2[Tree]{
 
     //type PF[Z] = K[A,Z]:+:(I[Z]:*:I[Z])
     type PFL[A,Z] = Par[A,Z]
@@ -124,7 +124,7 @@ object SampleRegularDatatypes{
   //rose tree
   case class Rose[A](a:A, childs:List[Rose[A]])
 
-  implicit def regular2Rose:Regular2[Rose]=new Regular2[Rose]{
+  implicit val regular2Rose:Regular2[Rose]=new Regular2[Rose]{
 
     //type PF[Z] = Par[A,Z]:*:(List[A] :@@: Rec[A,Z]) 
     type PFL[A,Z] = Par[A,Z]
