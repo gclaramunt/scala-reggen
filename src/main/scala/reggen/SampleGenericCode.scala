@@ -6,11 +6,24 @@ import Regular._
 import Regular2._
 import SampleRegularDatatypes._
 
+
 object SampleGenericCode extends App {
 
   val ti:TreeInt=NodeI(LeafI(1),LeafI(2))
   val tp:Tree[Int]=Node(Node(Leaf(3),Node(Leaf(5),Leaf(7))),Node(Leaf(1),Leaf(2)))
   val l=List(1,2,3,4,1,9,4)
+
+  def sumb(r:RegFunctor):Int = r match {
+    case U() => 0
+    case K(x) => x.asInstanceOf[Int]
+    case I(i) => i.asInstanceOf[Int]
+    case L(f)  => sumb(f)
+    case R(g)  => sumb(g)
+    case :*:(f,g)  => sumb(f)+sumb(g)
+    case _ => 0
+  }
+
+/*
 
   def sum[Z]:Regular[Z]#PF[Int]=>Int = {
     case U() => 0
@@ -20,11 +33,13 @@ object SampleGenericCode extends App {
     case r:R[_,Regular[Z]#PF[Int]] @unchecked  => sum(r.g)
     case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked  => sum(star.f)+sum(star.g)
   }
-  
-  println("sum of TreeInt = " + fold(ti)(sum))
-  println("sum of Tree[Int] = " + fold(tp)(sum))
-  println("sum of List[Int] = " + fold(l)(sum))
+*/
+
+  println("sum of TreeInt = " + fold(ti)(sumb))
+  println("sum of Tree[Int] = " + fold(tp)(sumb))
+  println("sum of List[Int] = " + fold(l)(sumb))
   println
+/*
 
   def count[Z]:Regular[Z]#PF[Int]=>Int = {
       case U() => 0
@@ -139,6 +154,7 @@ object SampleGenericCode extends App {
   println("sum2 of Tree[Int] = " + fold2(tp)(sum2))
   println("sum2 of List[Int] = " + fold2(l)(sum2))
   println("sum2 of Rose[Int] = " + fold2(rose)(sum2))
+*/
 
 /*
 

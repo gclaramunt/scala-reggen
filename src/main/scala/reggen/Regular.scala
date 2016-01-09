@@ -1,5 +1,7 @@
 package reggen
 
+import reggen.Functors.RegFunctor
+
 /**
  Describes a type in terms of a polinomial functor and provides conversions to and from it
 */
@@ -13,7 +15,7 @@ package reggen
 
 */
 trait Regular[T]{
-  type PF[_]
+  type PF[_] <: RegFunctor
   val ff:Functor[PF] 
   def from(t:T):PF[T]
   def to(pf:PF[T]):T

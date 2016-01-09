@@ -16,7 +16,7 @@ class Bifunctor f where
    infixr 7 :**:
 */
 
-trait Bifunctor[F[_,_]] {
+sealed trait Bifunctor[F[_,_]] {
   def bimap[A, B, R, S](fa: F[A,R])(f: A => B,g:R=>S): F[B,S]
 }
 

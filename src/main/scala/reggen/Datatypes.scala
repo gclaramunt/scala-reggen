@@ -1,6 +1,6 @@
 package reggen
 
-import Functors._
+import reggen.Functors._
 import Bifunctors._
 import Regular2._
 
@@ -10,7 +10,7 @@ import Regular2._
 object SampleRegularDatatypes{
 
   //simple Binary tree of ints
-  trait TreeInt{}
+  sealed trait TreeInt{}
   case class LeafI(i:Int) extends TreeInt
   case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 
@@ -22,7 +22,7 @@ object SampleRegularDatatypes{
     type PFR[Z] = (I[Z]:*:I[Z])
     type PF[Z]=PFL[Z]:+:PFR[Z]
 
-    val ff=implicitly[Functor[PF]]
+    val ff=implicitly[Functor[PF]]//hold to the implicit functor
 
     def from(t:TreeInt):PF[TreeInt] = t match {
       case LeafI(n) => L(K(n))
@@ -56,7 +56,7 @@ object SampleRegularDatatypes{
   }
 
   //parametrized binary tree
-  trait Tree[A]
+  sealed trait Tree[A]
   case class Leaf[A](i:A) extends Tree[A]
   case class Node[A](l:Tree[A],r:Tree[A]) extends Tree[A]
 
