@@ -15,8 +15,8 @@ object SampleGenericCode extends App {
 
   def sumb(r:RegFunctor):Int = r match {
     case U() => 0
-    case K(x) => x.asInstanceOf[Int]
-    case I(i) => i.asInstanceOf[Int]
+    case K(x) => x
+    case I(i) => i
     case L(f)  => sumb(f)
     case R(g)  => sumb(g)
     case :*:(f,g)  => sumb(f)+sumb(g)

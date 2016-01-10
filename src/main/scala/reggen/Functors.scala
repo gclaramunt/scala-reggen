@@ -9,12 +9,6 @@ trait FComb[F[_], G[_], K[_,_]]{
   type abs[A]= K[F[A],G[A]]
 }
 
-/*
-object Functors {
-  def apply[T]() = new Functors[T]()
-}
-
-class Functors[T] {*/
 object Functors {
 
   sealed trait RegFunctor
