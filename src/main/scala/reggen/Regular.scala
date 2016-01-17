@@ -14,7 +14,8 @@ import reggen.Functors.RegFunctor
      to   :: ((PF a) a) -> a
 
 */
-trait Regular[T]{
+trait Regular[T, P] extends RegFunctors {
+  type A = P
   type PF[_] <: RegFunctor
   val ff:Functor[PF] 
   def from(t:T):PF[T]

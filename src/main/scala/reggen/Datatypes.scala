@@ -1,6 +1,6 @@
 package reggen
 
-import reggen.Functors._
+import reggen.RegFunctors._
 import Bifunctors._
 import Regular2._
 
@@ -15,12 +15,12 @@ object SampleRegularDatatypes{
   case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 
 
-  implicit val regularTreeInt:Regular[TreeInt]=new Regular[TreeInt]{
+  implicit val regularTreeInt = new Regular[TreeInt, Int]{
+    //type PF[Z] = K[Z]:+:(I[Z]:*:I[Z])
 
-    //type PF[Z] = K[Int,Z]:+:(I[Z]:*:I[Z])
-    type PFL[Z] = K[Int,Z]
-    type PFR[Z] = (I[Z]:*:I[Z])
-    type PF[Z]=PFL[Z]:+:PFR[Z]
+    type PFL[Z] =K[Z]
+    type PFR[Z] = I[Z]:*:I[Z]
+    type PF[Z]= PFL[Z] :+:PFR[Z]
 
     val ff=implicitly[Functor[PF]]//hold to the implicit functor
 

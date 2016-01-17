@@ -13,7 +13,7 @@ object SampleGenericCode extends App {
   val tp:Tree[Int]=Node(Node(Leaf(3),Node(Leaf(5),Leaf(7))),Node(Leaf(1),Leaf(2)))
   val l=List(1,2,3,4,1,9,4)
 
-  def sumb(r:RegFunctor):Int = r match {
+  def sumb(r:Functors.Aux[Int]):Int = r match {
     case U() => 0
     case K(x) => x
     case I(i) => i

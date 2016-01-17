@@ -1,6 +1,6 @@
 package reggen
 
-import Functors._
+import RegFunctors._
 import Bifunctors._
 import Regular2._
 
