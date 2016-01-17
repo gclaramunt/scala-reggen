@@ -14,10 +14,10 @@ import reggen.RegFunctors.RegFunctor
      to   :: ((PF a) a) -> a
 
 */
-trait Regular[T]  {
+trait Regular[T,A]  {
 
-  type PF[X] <: RegFunctor{ type A = X }
-  val ff:Functor[PF] 
+  type PF[X] <: RegFunctor[A]
+
   def from(t:T):PF[T]
   def to(pf:PF[T]):T
 }
@@ -28,6 +28,6 @@ object Regular {
     Generic fold
   */
   def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A =
-    h(r.ff.fmap(r.from(d))(fold(_)(h)))
+    h(r.from(d).fmap((fold(_)(h))))
 
 }

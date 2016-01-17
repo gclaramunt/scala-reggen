@@ -15,18 +15,16 @@ object SampleRegularDatatypes{
   case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 
 
-  implicit val regularTreeInt = new Regular[TreeInt]{
+  implicit val regularTreeInt = new Regular[TreeInt, Int]{
     //type PF[Z] = K[Z]:+:(I[Z]:*:I[Z])
 
     type PFL[Z] =K[Int,Z]
-    type PFR[Z] = I[Z]:*:I[Z]
-    type PF[Z]= PFL[Z] :+:PFR[Z]
-
-    val ff=implicitly[Functor[PF]]//hold to the implicit functor
+    type PFR[Z] = :*:[Int,I[Int,Z],I[Int,Z]]
+    type PF[Z]=  :+:[Int, PFL[Z],PFR[Z]]
 
     def from(t:TreeInt):PF[TreeInt] = t match {
       case LeafI(n) => L(K(n))
-      case NodeI(x,y) => R(:*:(I(x),I(y)))
+      case NodeI(x,y) => R(:*:(I[Int, TreeInt](x),I[Int, TreeInt](y)))
     }
 
     def to(pf:PF[TreeInt]):TreeInt=  pf match {
@@ -35,14 +33,12 @@ object SampleRegularDatatypes{
     }
   }
 
-  implicit def regularList[A] =new Regular[List[A]]{
+  implicit def regularList[A] =new Regular[List[A],A]{
   	//type PF[Z] = U[Z]:+:(K[A,Z]:*:I[Z])
-  	type PFL[Z] = U[Z]
+  	type PFL[Z] = U[A,Z]
   	type PFK[Z] = K[A,Z]
-  	type PFR[Z] = PFK[Z]:*:I[Z]
-  	type PF[Z] = PFL[Z]:+:PFR[Z]
-  
-  	val ff=implicitly[Functor[PF]]
+  	type PFR[Z] = :*:[A,PFK[Z],I[A,Z]]
+  	type PF[Z] = :+:[A,PFL[Z],PFR[Z]]
 
 	  def from(t:List[A]):PF[List[A]] = t match {
 	    case Nil => L(U())
@@ -61,14 +57,12 @@ object SampleRegularDatatypes{
   case class Node[A](l:Tree[A],r:Tree[A]) extends Tree[A]
 
 
-  implicit def regularTree[A] =new Regular[Tree[A]]{
+  implicit def regularTree[A] =new Regular[Tree[A], A]{
 
     //type PF[Z] = K[A,Z]:+:(I[Z]:*:I[Z])
     type PFL[Z] = K[A,Z]
-    type PFR[Z] = (I[Z]:*:I[Z])
-    type PF[Z]=PFL[Z]:+:PFR[Z]
-
-    val ff=implicitly[Functor[PF]]
+    type PFR[Z] = :*:[A,I[A,Z],I[A,Z]]
+    type PF[Z]= :+:[A,PFL[Z],PFR[Z]]
 
     def from(t:Tree[A]):PF[Tree[A]] = t match {
       case Leaf(n) => L(K(n))
