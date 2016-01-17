@@ -1,10 +1,10 @@
 package reggen
 
-import Functors._
 import Bifunctors._
 import Regular._
 import Regular2._
 import SampleRegularDatatypes._
+import reggen.RegFunctors._
 
 
 object SampleGenericCode extends App {
@@ -13,7 +13,7 @@ object SampleGenericCode extends App {
   val tp:Tree[Int]=Node(Node(Leaf(3),Node(Leaf(5),Leaf(7))),Node(Leaf(1),Leaf(2)))
   val l=List(1,2,3,4,1,9,4)
 
-  def sumb(r:Functors.Aux[Int]):Int = r match {
+  def sumb[Z](r:Regular[Z]#PF[Int]):Int = r match {
     case U() => 0
     case K(x) => x
     case I(i) => i
@@ -23,17 +23,6 @@ object SampleGenericCode extends App {
     case _ => 0
   }
 
-/*
-
-  def sum[Z]:Regular[Z]#PF[Int]=>Int = {
-    case U() => 0
-    case k:K[Int,Z] @unchecked => k.unK
-    case i:I[Int] @unchecked => i.unI
-    case l:L[Regular[Z]#PF[Int],_] @unchecked  => sum(l.f)
-    case r:R[_,Regular[Z]#PF[Int]] @unchecked  => sum(r.g)
-    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked  => sum(star.f)+sum(star.g)
-  }
-*/
 
   println("sum of TreeInt = " + fold(ti)(sumb))
   println("sum of Tree[Int] = " + fold(tp)(sumb))
@@ -215,13 +204,13 @@ object SampleWithMonoid extends App{
     def append(t1:T, t2:T):T
   }
 
-  def reduce[Z,T](implicit m:Monoid[T]):Regular[Z]#PF[T]=>T = {
+  def reduce[Z,T](r:RegFunctor{ type A=T })(implicit m:Monoid[T]):T = r match {
     case U() => m.zero
-    case k:K[T,_]=> k.unK
-    case i:I[T]  => i.unI
-    case l:L[Regular[Z]#PF[T],_] @unchecked => reduce(m)(l.f)
-    case r:R[_,Regular[Z]#PF[T]]  @unchecked => reduce(m)(r.g)
-    case star:(Regular[Z]#PF[T]:*:Regular[Z]#PF[T])  @unchecked => m.append(reduce(m)(star.f),reduce(m)(star.g))
+    case K(x) => x
+    case I(i)  => i
+    case L(f) => reduce(f)(m)
+    case R(g) => reduce(g)(m)
+    case f:*:g => m.append(reduce(f)(m),reduce(g)(m))
   }
 
   val ti:TreeInt=NodeI(LeafI(1),LeafI(2))

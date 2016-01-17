@@ -15,10 +15,10 @@ object SampleRegularDatatypes{
   case class NodeI(l:TreeInt,r:TreeInt) extends TreeInt
 
 
-  implicit val regularTreeInt = new Regular[TreeInt, Int]{
+  implicit val regularTreeInt = new Regular[TreeInt]{
     //type PF[Z] = K[Z]:+:(I[Z]:*:I[Z])
 
-    type PFL[Z] =K[Z]
+    type PFL[Z] =K[Int,Z]
     type PFR[Z] = I[Z]:*:I[Z]
     type PF[Z]= PFL[Z] :+:PFR[Z]
 
@@ -35,7 +35,7 @@ object SampleRegularDatatypes{
     }
   }
 
-  implicit def regularList[A]:Regular[List[A]]=new Regular[List[A]]{
+  implicit def regularList[A] =new Regular[List[A]]{
   	//type PF[Z] = U[Z]:+:(K[A,Z]:*:I[Z])
   	type PFL[Z] = U[Z]
   	type PFK[Z] = K[A,Z]
@@ -61,7 +61,7 @@ object SampleRegularDatatypes{
   case class Node[A](l:Tree[A],r:Tree[A]) extends Tree[A]
 
 
-  implicit def regularTree[A]:Regular[Tree[A]]=new Regular[Tree[A]]{
+  implicit def regularTree[A] =new Regular[Tree[A]]{
 
     //type PF[Z] = K[A,Z]:+:(I[Z]:*:I[Z])
     type PFL[Z] = K[A,Z]
