@@ -1,8 +1,6 @@
 package reggen
 
-import Bifunctors._
 import Regular._
-import Regular2._
 import SampleRegularDatatypes._
 import reggen.RegFunctors._
 
