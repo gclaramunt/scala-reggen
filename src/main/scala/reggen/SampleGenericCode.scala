@@ -12,7 +12,7 @@ object SampleGenericCode extends App {
   val tp:Tree[Int]=Node(Node(Leaf(3),Node(Leaf(5),Leaf(7))),Node(Leaf(1),Leaf(2)))
   val l=List(1,2,3,4,1,9,4)
 
-  def sum[Z]:Regular[Z]#PF[Int]=>Int = {
+  def sum[Z](r:Regular[Z]#PF[Int]):Int = r match {
     case U() => 0
     case k:K[Int,Z] @unchecked => k.unK
     case i:I[Int] @unchecked => i.unI
@@ -121,12 +121,12 @@ object SampleGenericCode extends App {
   def sum2[Z[_]:Regular2,X[_]]: Regular2[Z]#PF2[Int,Int] => Int =  {
     case U2() => 0
     case K2(_) => 0 //k2:K2[Int,_,Z[Int]] @unchecked => k2.unK
-    case l:L[Regular2[Z]#PF2[Int,Int],_]  => sum2(implicitly[Regular2[Z]])(l.f)
-    case r:R[_,Regular2[Z]#PF2[Int,Int]]  => sum2(implicitly[Regular2[Z]])(r.g)
+    case l:LL[Regular2[Z]#PF2[Int,Int],_]  => sum2(implicitly[Regular2[Z]])(l.f)
+    case r:RR[_,Regular2[Z]#PF2[Int,Int]]  => sum2(implicitly[Regular2[Z]])(r.g)
     //case R(g)  => sum2(implicitly[Regular2[Z]])(g)
     case p:Par[Int,Int]  => p.unPar
     case r:Rec[Int,Int]  => r.unRec// sum2((implicitly[Regular2[Z]]).from2(r.unRec)) 
-    case star:(Regular2[Z]#PF2[Int,Int]:*:Regular2[Z]#PF2[Int,Int])  => sum2(implicitly[Regular2[Z]])(star.f) + sum2(implicitly[Regular2[Z]])(star.g)
+    case star:(Regular2[Z]#PF2[Int,Int]:**:Regular2[Z]#PF2[Int,Int])  => sum2(implicitly[Regular2[Z]])(star.f) + sum2(implicitly[Regular2[Z]])(star.g)
     case comp2:( :@@:[X, Regular2[X]#PF2[Int,Int]])  => {
       implicit val evX = comp2.rd
       val sum2app =sum2(evX)
