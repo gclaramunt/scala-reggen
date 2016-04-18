@@ -22,7 +22,7 @@ object SampleRegularDatatypes{
     type PFR[Z] = (I[Z]:*:I[Z])
     type PF[Z]=PFL[Z]:+:PFR[Z]
 
-    val ff=implicitly[Functor[PF]]
+    val ff = fplus(FK,fstar(FId,FId))
 
     def from(t:TreeInt):PF[TreeInt] = t match {
       case LeafI(n) => L(K(n))

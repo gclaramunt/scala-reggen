@@ -12,21 +12,22 @@ object SampleGenericCode extends App {
   val tp:Tree[Int]=Node(Node(Leaf(3),Node(Leaf(5),Leaf(7))),Node(Leaf(1),Leaf(2)))
   val l=List(1,2,3,4,1,9,4)
 
-  def sum[Z](r:Regular[Z]#PF[Int]):Int = r match {
+  def sum[Z](r:Regular[Z])(pf:Regular[Z]#PF[Int]):Int = pf match {
     case U() => 0
-    case k:K[Int,Z] @unchecked => k.unK
-    case i:I[Int] @unchecked => i.unI
-    case l:L[Regular[Z]#PF[Int],_] @unchecked  => sum(l.f)
-    case r:R[_,Regular[Z]#PF[Int]] @unchecked  => sum(r.g)
-    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked  => sum(star.f)+sum(star.g)
+    case K(k)=> k
+    case I(i) => fold(i)(sum(r))(r)
+    case L(f)  => sum(r)(f)
+    case R(g) => sum(r)(g)
+    case f :*: g => sum(r)(f)+sum(r)(g)
   }
   
-  println("sum of TreeInt = " + fold(ti)(sum))
+  println("sum of TreeInt = " + fold(ti)(sum(ti)))
   println("sum of Tree[Int] = " + fold(tp)(sum))
   println("sum of List[Int] = " + fold(l)(sum))
   println
+/*
 
-  def count[Z]:Regular[Z]#PF[Int]=>Int = {
+  def count[Z]:PatternFuctor[Z,Int]=>Int = {
       case U() => 0
       case k:K[Int,Z] @unchecked => 1
       case i:I[Int] @unchecked => i.unI 
@@ -139,6 +140,7 @@ object SampleGenericCode extends App {
   println("sum2 of Tree[Int] = " + fold2(tp)(sum2))
   println("sum2 of List[Int] = " + fold2(l)(sum2))
   println("sum2 of Rose[Int] = " + fold2(rose)(sum2))
+*/
 
 /*
 
