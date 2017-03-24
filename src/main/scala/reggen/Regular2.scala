@@ -25,7 +25,7 @@ object Regular2 {
 
   def pmap[A,B,D[_]](da:D[A])(f:A=>B)(implicit r2:Regular2[D]):D[B]={
     //bimap :: (a -> b) -> (r -> s) -> f a r -> f b s
-    r2.to2(r2.bf.bimap(r2.from2(da))(f, (pmap(_)(f))))
+    r2.to2(r2.bf.bimap(r2.from2(da))(f, pmap(_)(f)))
   }
 
 /*

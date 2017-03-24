@@ -14,11 +14,11 @@ object SampleGenericCode extends App {
 
   def sum[Z](r:Regular[Z]#PF[Int]):Int = r match {
     case U() => 0
-    case k:K[Int,Z] @unchecked => k.unK
-    case i:I[Int] @unchecked => i.unI
-    case l:L[Regular[Z]#PF[Int],_] @unchecked  => sum(l.f)
-    case r:R[_,Regular[Z]#PF[Int]] @unchecked  => sum(r.g)
-    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int]) @unchecked  => sum(star.f)+sum(star.g)
+    case k:K[Int,Z]  => k.unK
+    case i:I[Int]  => i.unI
+    case l:L[Regular[Z]#PF[Int],_]  => sum(l.f)
+    case r:R[_,Regular[Z]#PF[Int]]   => sum(r.g)
+    case star:(Regular[Z]#PF[Int]:*:Regular[Z]#PF[Int])   => sum(star.f)+sum(star.g)
   }
   
   println("sum of TreeInt = " + fold(ti)(sum))

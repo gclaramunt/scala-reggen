@@ -1,7 +1,7 @@
 package reggen
 
-import Functors._
 import Bifunctors._
+import Functors._
 import Regular2._
 
 /*
@@ -38,7 +38,7 @@ object Bifunctors {
 
   case class K2[A,B,R](unK:A) 
 
-  implicit def FK2[A] =new Bifunctor[({type λ[B,R]=K2[A,B,R]})#λ]{
+  implicit def FK2[A] =new Bifunctor[K2[A,?,?]]{
     def bimap[A1,B1,A2,B2](ka: K2[A,A1,A2])(f: A1 => B1, g: A2 => B2): K2[A,B1,B2]=K2(ka.unK)
   }
 
@@ -101,7 +101,7 @@ object Bifunctors {
   case class LL[F,G](f:F) extends :++:[F,G]
   case class RR[F,G](g:G) extends :++:[F,G]
 
-implicit def bifplus[F[_,_] , G[_,_] ](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[BiFComb[F,G,:++:]#abs]{
+implicit def bifplus[F[_,_] , G[_,_] ](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[Lambda[(A,R) => F[A,R]:++:G[A,R]]]{
   def bimap[A,B,A2,B2](fga:F[A,A2]:++:G[A,A2])(f: A => B, g:A2=>B2):F[B,B2]:++:G[B,B2]= fga match {
     case LL(lf) => LL(ff.bimap(lf)(f,g))
     case RR(rg) => RR(fg.bimap(rg)(f,g))
@@ -119,7 +119,7 @@ implicit def bifplus[F[_,_], G[_,_]](implicit ff:Bifunctor[F], fg:Bifunctor[G])=
 
 case class :**:[F,G](f:F,g:G)  
 
-implicit def bifstar[F[_,_], G[_,_]](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[BiFComb[F,G,:**:]#abs]{
+implicit def bifstar[F[_,_], G[_,_]](implicit ff:Bifunctor[F], fg:Bifunctor[G])=new Bifunctor[Lambda[(A,R) => F[A,R]:**:G[A,R]]]{
   def bimap[A,B,A2,B2](fga:F[A,A2]:**:G[A,A2])(f: A => B,g:A2=>B2):F[B,B2]:**:G[B,B2]= :**:(ff.bimap(fga.f)(f,g),fg.bimap(fga.g)(f,g))
 }
 /*
@@ -133,9 +133,9 @@ instance (Regular2 d, Bifunctor (PF2 d), Bifunctor f) => Bifunctor (d :@@: f) wh
 
 */
 
-  case class :@@:[D[_],F](unComp2:D[F], val rd:Regular2[D]) 
+  case class :@@:[D[_],F](unComp2:D[F], rd:Regular2[D])
 
-  implicit def fbicomp[F[_,_],D[_]](implicit ff:Bifunctor[F])=new Bifunctor[({ type abs[A,B]=D:@@:F[A,B]})#abs]{
+  implicit def fbicomp[F[_,_],D[_]](implicit ff:Bifunctor[F])=new Bifunctor[Lambda[(A,R) => D:@@:F[A,R]]]{
     def bimap[A,B,A2,B2](fga:D:@@:F[A,A2])(f: A => B,g: A2=>B2):D:@@:F[B,B2]= :@@:(pmap(fga.unComp2)(ff.bimap(_)(f,g))(fga.rd),fga.rd)
   }
 

@@ -4,16 +4,11 @@ trait Functor[F[_]] {
   def fmap[A, B](fa: F[A])(f: A => B): F[B]
 }
 
-//combines two functors with a bifunctor using the same parameter
-trait FComb[F[_],G[_],K[_,_]]{
-    type abs[A]= K[F[A],G[A]]
-  }
-
 object Functors {
 
   case class K[A,R](unK:A)
 
-  implicit def FK[A] =new Functor[({type λ[B]=K[A,B]})#λ]{
+  implicit def FK[A] =new Functor[K[A,?]]{
     def fmap[A1, B1](ka: K[A,A1])(f: A1 => B1): K[A,B1]=K(ka.unK)
   }
 
@@ -34,7 +29,7 @@ object Functors {
   case class R[F,G](g:G) extends :+:[F,G]
 
 
-  implicit def fplus[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[FComb[F,G,:+:]#abs]{
+  implicit def fplus[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[Lambda[A=> F[A]:+:G[A]]]{
     def fmap[A,B](fga:F[A]:+:G[A])(f: A => B):F[B]:+:G[B]= fga match {
       case L(lf) => L(ff.fmap(lf)(f))
       case R(rg) => R(fg.fmap(rg)(f))
@@ -43,13 +38,13 @@ object Functors {
 
   case class :*:[F,G](f:F,g:G) 
 
-  implicit def fstar[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[FComb[F,G,:*:]#abs]{
+  implicit def fstar[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[Lambda[A=> F[A]:*:G[A]]]{
     def fmap[A,B](fga:F[A]:*:G[A])(f: A => B):F[B]:*:G[B]= :*:(ff.fmap(fga.f)(f),fg.fmap(fga.g)(f))
   }
 
   case class :@:[F[_],G](unComp:F[G])  
 
-  implicit def fcomp[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[({ type abs[A]=F:@:G[A]})#abs]{
+  implicit def fcomp[F[_], G[_]](implicit ff:Functor[F], fg:Functor[G])=new Functor[Lambda[A=>F:@:G[A]]]{
     def fmap[A,B](fga:F:@:G[A])(f: A => B):F:@:G[B]= :@:(ff.fmap(fga.unComp)(fg.fmap(_)(f)))
   }
 }
