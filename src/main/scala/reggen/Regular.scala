@@ -1,9 +1,10 @@
 package reggen
 
-/**
- Describes a type in terms of a polinomial functor and provides conversions to and from it
-*/
+import reggen.Functors.PFn
 
+/**
+  *Describes a type in terms of a polinomial functor and provides conversions to and from it
+  */
 /*
  type family PF a :: * -> *
 
@@ -11,20 +12,21 @@ package reggen
      from :: a -> ((PF a) a)
      to   :: ((PF a) a) -> a
 
-*/
-trait Regular[T]{
-  type PF[_]
-  val ff:Functor[PF] 
-  def from(t:T):PF[T]
-  def to(pf:PF[T]):T
+ */
+trait Regular[T] {
+  type PF[_] <: PFn
+
+  val ff: Functor[PF]
+  def from(t: T): PF[T]
+  def to(pf: PF[T]): T
 }
 
 object Regular {
 
   /**
     Generic fold
-  */
-  def fold[A,D](d:D)(h:Regular[D]#PF[A]=>A)(implicit r:Regular[D]):A =
+    */
+  def fold[A, D](d: D)(h: Regular[D]#PF[A] => A)(implicit r: Regular[D]): A =
     h(r.ff.fmap(r.from(d))(fold(_)(h)))
 
 }
